@@ -1,0 +1,2643 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>White Knuckle – The Climb</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Silkscreen:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+/* Page reset, design tokens, canvas, post-process overlays and the .ov overlay primitive. */
+
+:root {
+  --bg: #050505;
+  --red: #d41f1f;
+  --ink: #f1eee8;
+  --pur: #8d6bff;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #050505;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: "Silkscreen", "Courier New", monospace;
+  user-select: none;
+}
+
+#c {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+#fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.8)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 0 1px,
+      transparent 1px 3px
+    );
+  mix-blend-mode: multiply;
+}
+
+#dg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, #a00 120%);
+  opacity: 0;
+}
+
+.ov {
+  position: fixed;
+  inset: 0;
+  display: none;
+}
+
+</style>
+    <style>
+/* In-game HUD: height, timer, stamina bars, hands, gun, inventory, power-ups. */
+
+#hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+}
+
+#ht {
+  position: absolute;
+  left: 28px;
+  top: calc(22px + env(safe-area-inset-top, 0px));
+  font-size: 30px;
+  text-shadow: 3px 3px 0 #000;
+}
+
+#tm {
+  position: absolute;
+  right: 28px;
+  top: calc(22px + env(safe-area-inset-top, 0px));
+  font-size: 20px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+#st2 {
+  position: absolute;
+  left: 28px;
+  top: calc(68px + env(safe-area-inset-top, 0px));
+  font-size: 15px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+#pw {
+  position: absolute;
+  left: 28px;
+  top: calc(96px + env(safe-area-inset-top, 0px));
+  font-size: 13px;
+  line-height: 1.7;
+  color: #9fe;
+  text-shadow: 2px 2px 0 #000;
+}
+
+#tst {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  color: #ffe9a0;
+  text-shadow: 2px 2px 0 #000;
+  text-align: center;
+}
+
+#mf {
+  position: fixed;
+  right: 11%;
+  bottom: 42%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(#fff, #ffb040 40%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#inv {
+  position: absolute;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+}
+
+.sl {
+  width: 60px;
+  height: 46px;
+  border: 2px solid #777;
+  background: #0009;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ccc;
+}
+
+.sl.on {
+  border-color: #ffe9a0;
+  color: #fff;
+  box-shadow: 0 0 8px #ffe9a077;
+}
+
+#pr {
+  position: absolute;
+  left: 50%;
+  bottom: 22%;
+  transform: translateX(-50%);
+  font-size: 18px;
+  color: #ffe9a0;
+  text-shadow: 2px 2px 0 #000;
+}
+
+#it {
+  position: fixed;
+  left: 14%;
+  bottom: -130px;
+  width: 110px;
+  height: 110px;
+  image-rendering: pixelated;
+  transition: bottom 0.25s;
+  pointer-events: none;
+}
+
+#it.on {
+  bottom: 20px;
+}
+
+#gn {
+  position: fixed;
+  right: 12.5%;
+  bottom: -24px;
+  width: 160px;
+  height: 180px;
+  image-rendering: pixelated;
+  display: none;
+  transition: transform 0.06s;
+  pointer-events: none;
+  filter: drop-shadow(3px 3px 0 #0008);
+}
+
+#gn.f {
+  transform: translate(8px, -26px) rotate(-6deg);
+}
+
+#ch {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border: 2px solid #fff8;
+  border-radius: 50%;
+}
+
+#ch.on {
+  border-color: var(--red);
+  background: #d41f1f55;
+  transform: scale(1.5);
+}
+
+.bar {
+  position: absolute;
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  width: 10px;
+  height: 150px;
+  border: 2px solid #ddd;
+  background: #0008;
+}
+
+.bar i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #eee;
+  height: 100%;
+}
+
+#b0 {
+  left: 4%;
+}
+
+#b1 {
+  right: 4%;
+}
+
+.hd,
+.wh {
+  position: fixed;
+  width: 156px;
+  height: 182px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(3px 3px 0 #0008);
+}
+
+.hd {
+  bottom: -60px;
+  transition: bottom 0.09s;
+}
+
+#h0 {
+  left: 12%;
+  transform: rotate(14deg);
+}
+
+#h1 {
+  right: 12%;
+  transform: scaleX(-1) rotate(14deg);
+}
+
+.wh {
+  display: none;
+  margin: -60px 0 0 -78px;
+}
+
+</style>
+    <style>
+/* Main menu and Play panel (title, cards, options). */
+
+#menu {
+  display: block;
+  background: linear-gradient(90deg, #0009, transparent 60%);
+}
+
+#logo {
+  position: absolute;
+  left: 12%;
+  top: 12%;
+}
+
+.w {
+  display: block;
+  font:
+    700 clamp(46px, 8vw, 104px)/1 Oswald,
+    Impact,
+    sans-serif;
+  letter-spacing: 0.02em;
+  color: #e9e6ea;
+  text-shadow: 4px 4px 0 #9b1b2a;
+}
+
+.s {
+  display: block;
+  font:
+    700 clamp(60px, 11vw, 150px)/1 Silkscreen,
+    monospace;
+  background: linear-gradient(#b9a4ff, #6a2fd0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px #7a4cff88);
+}
+
+#menu ul {
+  position: absolute;
+  left: 12%;
+  bottom: 8%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 24px;
+}
+
+#menu li {
+  margin: 0 0 30px;
+  cursor: pointer;
+  color: #f4f0ff;
+}
+
+#menu li:hover {
+  color: var(--pur);
+  transform: translateX(8px);
+}
+
+#menu li.d {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#menu li.d:hover {
+  color: inherit;
+  transform: none;
+}
+
+#menu small {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+#play {
+  flex-direction: column;
+  align-items: center;
+  background: #000d;
+  font-family: Oswald, "Arial Narrow", sans-serif;
+  text-align: center;
+  overflow: auto;
+}
+
+#play h2 {
+  font:
+    500 clamp(54px, 8vw, 96px)/1 Oswald,
+    sans-serif;
+  margin: 3vh 0 4vh;
+}
+
+#cards {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  padding: 0 4vw;
+}
+
+.cd {
+  position: relative;
+  width: min(300px, 42vw);
+  height: min(310px, 40vh);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  border: 2px solid #444;
+  background: linear-gradient(#1a1a1a, #0d0d0d);
+  color: #999;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.cd b {
+  font:
+    500 clamp(22px, 3vw, 34px)/1 Oswald,
+    sans-serif;
+  text-transform: uppercase;
+  color: #bbb;
+}
+
+.cd em {
+  font-style: normal;
+  font-size: 15px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.cd svg {
+  width: 84px;
+  height: 84px;
+  margin-bottom: auto;
+  margin-top: 18%;
+}
+
+.cd.on {
+  width: min(420px, 70vw);
+  border-color: #eee;
+  color: #fff;
+  cursor: pointer;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    #7a0f10 0,
+    #2a0505 45%,
+    #050505 85%
+  );
+}
+
+.cd.on b {
+  color: #fff;
+  font-size: clamp(36px, 5vw, 54px);
+}
+
+.cd.on:hover {
+  transform: scale(1.02);
+  border-color: var(--red);
+}
+
+#opt {
+  margin: 5vh 0 2vh;
+  font:
+    400 18px "Silkscreen",
+    monospace;
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#opt .k {
+  color: #c8742a;
+  opacity: 0.6;
+}
+
+#opt .r {
+  color: var(--red);
+  opacity: 0.6;
+}
+
+#opt h3 {
+  margin: 0;
+  font:
+    500 32px Oswald,
+    sans-serif;
+}
+
+#cl {
+  font:
+    500 52px Oswald,
+    sans-serif;
+  color: var(--red);
+  cursor: pointer;
+  margin-top: 1vh;
+}
+
+#cl:hover {
+  color: #fff;
+}
+
+</style>
+    <style>
+/* End-of-run and pause overlays. */
+
+#end {
+  background: #200000cc;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+}
+
+#end h1 {
+  font:
+    700 clamp(54px, 10vw, 130px)/1 Oswald,
+    sans-serif;
+  color: var(--red);
+  margin: 0;
+  text-shadow: 4px 4px 0 #000;
+}
+
+#end p {
+  margin: 14px 0;
+  font-size: 18px;
+}
+
+#pz {
+  background: #000a;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+</style>
+    <style>
+/* Touch / phone layout. Active only when <body class="touch"> (coarse pointer or ?touch=1). */
+#tc,
+#rot {
+  display: none;
+}
+body.touch #tc {
+  display: block;
+}
+body.touch {
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+body.touch #pz {
+  display: none !important;
+}
+#rot {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: #000;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font:
+    700 20px/1.8 Silkscreen,
+    monospace;
+  padding: 24px;
+}
+@media (orientation: portrait) {
+  body.touch #rot {
+    display: flex;
+  }
+}
+
+/* Controls */
+#joy {
+  position: absolute;
+  left: calc(22px + env(safe-area-inset-left, 0px));
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 3px solid #fff7;
+  background: #0006;
+  pointer-events: auto;
+  touch-action: none;
+}
+#knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px;
+  border-radius: 50%;
+  background: #ddd9;
+  border: 3px solid #fff;
+}
+.tb {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  font:
+    700 13px Silkscreen,
+    monospace;
+  color: #fff;
+  background: #000a;
+  border: 3px solid #fffb;
+  border-radius: 50%;
+  padding: 0;
+  user-select: none;
+}
+.tb.on {
+  background: #d41f1fcc;
+  border-color: #fff;
+}
+#tg0,
+#tg1 {
+  width: 84px;
+  height: 84px;
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+#tg1 {
+  right: calc(18px + env(safe-area-inset-right, 0px));
+}
+#tg0 {
+  right: calc(114px + env(safe-area-inset-right, 0px));
+}
+#tjp {
+  width: 74px;
+  height: 74px;
+  right: calc(70px + env(safe-area-inset-right, 0px));
+  bottom: calc(126px + env(safe-area-inset-bottom, 0px));
+  background: #1a3a55bb;
+}
+#ttop {
+  position: absolute;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  display: flex;
+  gap: 8px;
+}
+.tb.sm {
+  position: static;
+  width: auto;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* HUD on phones */
+body.touch #ht {
+  left: 14px;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  font-size: 20px;
+}
+body.touch #st2 {
+  left: 14px;
+  top: calc(38px + env(safe-area-inset-top, 0px));
+  font-size: 11px;
+}
+body.touch #pw {
+  left: 14px;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  font-size: 10px;
+}
+body.touch #tm {
+  right: 14px;
+  top: calc(56px + env(safe-area-inset-top, 0px));
+  font-size: 13px;
+}
+body.touch .bar {
+  width: 8px;
+  height: 84px;
+  bottom: auto;
+  top: 96px;
+}
+body.touch #b0 {
+  left: 10px;
+}
+body.touch #b1 {
+  right: 10px;
+}
+body.touch #inv {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  gap: 4px;
+  pointer-events: auto;
+}
+body.touch .sl {
+  width: 46px;
+  height: 38px;
+  font-size: 9px;
+  pointer-events: auto;
+}
+body.touch #pr {
+  bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+  font-size: 14px;
+  background: #000b;
+  border: 2px solid #ffe9a0;
+  padding: 10px 16px;
+  pointer-events: auto;
+}
+body.touch #pr:empty {
+  display: none;
+}
+body.touch .hd {
+  width: 96px;
+  height: 112px;
+}
+body.touch #h0 {
+  left: 30%;
+}
+body.touch #h1 {
+  right: 30%;
+}
+body.touch #gn {
+  width: 110px;
+  height: 124px;
+  right: 31%;
+}
+body.touch #tst {
+  font-size: 15px;
+  top: 14%;
+}
+
+/* Menu on phones / short screens: Campaign only, compact */
+body.touch .cd:not(.on) {
+  display: none;
+}
+@media (max-height: 520px) {
+  #logo {
+    top: 5%;
+  }
+  #menu ul {
+    bottom: 5%;
+    font-size: 17px;
+  }
+  #menu li {
+    margin-bottom: 12px;
+  }
+  #play h2 {
+    margin: 1vh 0 2vh;
+    font-size: 44px;
+  }
+  .cd.on {
+    height: min(160px, 36vh);
+  }
+  #opt {
+    margin: 2vh 0;
+    font-size: 14px;
+  }
+  #cl {
+    font-size: 36px;
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="fx"></div>
+    <div id="dg"></div>
+    <div id="hud">
+      <div id="ht">0.0 M</div>
+      <div id="tm"></div>
+      <div id="st2"></div>
+      <div id="pr"></div>
+      <div id="mf"></div>
+      <div id="pw"></div>
+      <div id="tst"></div>
+      <div id="inv"></div>
+      <canvas id="it" width="8" height="8"></canvas>
+      <div id="ch"></div>
+      <div class="bar" id="b0"><i></i></div>
+      <div class="bar" id="b1"><i></i></div>
+      <div id="tc">
+        <div id="joy"><i id="knob"></i></div>
+        <button class="tb" id="tg0">GRAB L</button>
+        <button class="tb" id="tg1">GRAB R</button>
+        <button class="tb" id="tjp">JUMP</button>
+        <div id="ttop">
+          <button class="tb sm" id="tlt">LIGHT</button>
+          <button class="tb sm" id="thk">HOOK</button>
+          <button class="tb sm" id="tdr">DROP</button>
+        </div>
+      </div>
+    </div>
+    <div class="ov" id="menu">
+      <div id="logo">
+        <span class="w">WHITE KNUCKLE</span><span class="s">THE CLIMB</span>
+      </div>
+      <ul>
+        <li id="mp">PLAY</li>
+        <li class="d">JOURNAL</li>
+        <li class="d">COSMETICS</li>
+        <li class="d">SETTINGS</li>
+      </ul>
+      <small>[white-knuckle-fan-0.1] [html5]</small>
+    </div>
+    <div class="ov" id="play">
+      <h2>PLAY</h2>
+      <div id="cards">
+        <div class="cd on" id="camp"><b>Campaign</b></div>
+      </div>
+      <div id="opt">
+        <h3>Options</h3>
+        <label><input type="checkbox" id="ot" checked /> Onscreen Timer</label
+        ><span class="k">Iron Knuckle</span><span class="r">Hard Mode</span>
+      </div>
+      <div id="cl">CLOSE</div>
+    </div>
+    <div class="ov" id="end">
+      <h1 id="et"></h1>
+      <p id="es"></p>
+      <p>CLICK TO CLIMB AGAIN</p>
+    </div>
+    <div class="ov" id="pz">
+      <div style="text-align: center">
+        CLICK TO RESUME
+        <p style="font-size: 13px; line-height: 1.9; opacity: 0.75">
+          L/R CLICK: GRAB &nbsp; SPACE: JUMP &nbsp; SHIFT: SPRINT &nbsp; F:
+          FLASHLIGHT<br />E: TAKE &nbsp; 1-5 / WHEEL: USE OR EQUIP &nbsp; Q:
+          DISCARD &nbsp; R: RESTART<br />GUN EQUIPPED: RIGHT CLICK FIRES (RIGHT
+          HAND IS BUSY)<br />X: GRAPPLE (W/S REEL, A/D SWING, SPACE RELEASE)
+          &nbsp; SPACE IN AIR: DOUBLE JUMP
+        </p>
+      </div>
+    </div>
+    <div id="rot">ROTATE YOUR PHONE<br />TO LANDSCAPE</div>
+    <canvas id="gn"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+/**
+ * Renderer, scene, camera and viewport (low-res pixelated render target).
+ */
+const $ = (i) => document.getElementById(i),
+  T3 = THREE;
+const cv = $("c"),
+  rn = new T3.WebGLRenderer({ canvas: cv, antialias: false }),
+  sc = new T3.Scene(),
+  cam = new T3.PerspectiveCamera(82, 1, 0.1, 90);
+sc.add(cam);
+sc.fog = new T3.Fog(0, 3, 34);
+function rs() {
+  const w = Math.max(160, innerWidth >> 2),
+    h = Math.max(90, innerHeight >> 2);
+  rn.setSize(w, h, false);
+  cam.aspect = w / h;
+  cam.updateProjectionMatrix();
+}
+addEventListener("resize", rs);
+rs();
+
+</script>
+    <script>
+/**
+ * Global game state: player, hands, timers, flags and gameplay counters.
+ */
+/** True on phones/tablets (coarse pointer). Add ?touch=1 to the URL to force touch controls. */
+const TOUCH =
+  /[?&]touch=1/.test(location.search) ||
+  (window.matchMedia ? matchMedia("(pointer: coarse)").matches : false);
+document.body.classList.toggle("touch", TOUCH);
+let hp = 3,
+  ammo = 0,
+  gcd = 0,
+  shk = 0,
+  G = 0,
+  nIt = null;
+let stepT = 0,
+  lastH = null;
+// state
+const P = new T3.Vector3(12, 1.7, 0),
+  V = new T3.Vector3(),
+  F = new T3.Vector3(),
+  hs = [0, 1].map(() => ({ i: -1, s: 100, lk: 0, dn: 0, cd: 0 }));
+let yaw = -1.57,
+  pitch = 0.35,
+  hz = -7,
+  tt = 0,
+  st = "menu",
+  ht = 0,
+  best = 0,
+  fell = 0,
+  K = {};
+try {
+  best = +localStorage.getItem("wk_best") || 0;
+} catch (e) {}
+
+</script>
+    <script>
+/**
+ * Procedural pixel textures for walls and handholds.
+ */
+// textures
+function mkTex(rx, ry) {
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const g = c.getContext("2d");
+  g.fillStyle = "#303030";
+  g.fillRect(0, 0, 64, 64);
+  for (let r = 0; r < 8; r++)
+    for (let k = 0; k < 4; k++) {
+      const x = k * 16 + (r % 2) * 8,
+        v = (95 + Math.random() * 70) | 0;
+      g.fillStyle = `rgb(${v},${v},${v})`;
+      g.fillRect(x + 1, r * 8 + 1, 14, 6);
+    }
+  for (let i = 0; i < 400; i++) {
+    g.fillStyle = `rgba(0,0,0,${Math.random() * 0.5})`;
+    g.fillRect(Math.random() * 64, Math.random() * 64, 1, 1);
+  }
+  for (let i = 0; i < 14; i++) {
+    g.fillStyle = "rgba(120,10,10,.35)";
+    g.fillRect(
+      Math.random() * 64,
+      Math.random() * 64,
+      1,
+      3 + Math.random() * 8,
+    );
+  }
+  for (let r = 0; r < 8; r++)
+    for (let k = 0; k < 4; k++) {
+      const x = k * 16 + (r % 2) * 8;
+      g.fillStyle = "rgba(255,255,255,.12)";
+      g.fillRect(x + 1, r * 8 + 1, 14, 1);
+      g.fillStyle = "rgba(0,0,0,.35)";
+      g.fillRect(x + 1, r * 8 + 6, 14, 1);
+      if (Math.random() < 0.2) {
+        g.fillStyle = "#9a9a9a";
+        g.fillRect(x + 2, r * 8 + 3, 1, 1);
+        g.fillRect(x + 12, r * 8 + 3, 1, 1);
+      }
+    }
+  for (let i = 0; i < 6; i++) {
+    const gr = g.createLinearGradient(0, 0, 0, 64);
+    gr.addColorStop(0, "rgba(0,0,0,.35)");
+    gr.addColorStop(1, "rgba(60,20,10,0)");
+    g.fillStyle = gr;
+    g.fillRect((Math.random() * 64) | 0, 0, 2, 64);
+  }
+  const t = new T3.CanvasTexture(c);
+  t.wrapS = t.wrapT = T3.RepeatWrapping;
+  t.magFilter = t.minFilter = T3.NearestFilter;
+  t.repeat.set(rx, ry);
+  return t;
+}
+function hT() {
+  const c = document.createElement("canvas");
+  c.width = c.height = 32;
+  const g = c.getContext("2d");
+  g.fillStyle = "#b9ad92";
+  g.fillRect(0, 0, 32, 32);
+  for (let i = 0; i < 160; i++) {
+    const v = (120 + Math.random() * 110) | 0;
+    g.fillStyle = `rgb(${v},${v - 8},${v - 24})`;
+    g.fillRect(Math.random() * 32, Math.random() * 32, 2, 2);
+  }
+  g.fillStyle = "#e8e4d8";
+  g.fillRect(0, 0, 32, 5);
+  g.fillStyle = "#2a1c10";
+  g.fillRect(0, 30, 32, 2);
+  for (let i = 0; i < 4; i++)
+    g.fillRect(Math.random() * 32, 6 + Math.random() * 20, 1, 6);
+  g.fillStyle = "#8c3a22";
+  g.fillRect(4, 12, 9, 2);
+  const t = new T3.CanvasTexture(c);
+  t.magFilter = t.minFilter = T3.NearestFilter;
+  return t;
+}
+
+</script>
+    <script>
+/**
+ * Silo shell: wall, girders, pipes, floor, rising hazard, lights and spores.
+ */
+const wm = new T3.MeshPhongMaterial({ map: mkTex(26, 80), shininess: 0 });
+const wall = new T3.Mesh(new T3.CylinderGeometry(14, 14, 720, 36, 1, true), wm);
+wall.material.side = T3.BackSide;
+wall.position.y = 350;
+sc.add(wall);
+const gm = new T3.MeshPhongMaterial({
+  map: mkTex(2, 1),
+  color: 0x777777,
+  shininess: 0,
+});
+for (let y = 20; y < 700; y += 24) {
+  const r = new T3.Mesh(new T3.TorusGeometry(13.5, 0.55, 4, 36), gm);
+  r.rotation.x = Math.PI / 2;
+  r.position.y = y;
+  sc.add(r);
+}
+for (let i = 0; i < 7; i++) {
+  const a = (i / 7) * 6.28 + 0.4,
+    p = new T3.Mesh(new T3.CylinderGeometry(0.4, 0.4, 720, 6), gm);
+  p.position.set(Math.cos(a) * 13.3, 350, Math.sin(a) * 13.3);
+  sc.add(p);
+}
+const fl = new T3.Mesh(
+  new T3.CircleGeometry(14, 36),
+  new T3.MeshLambertMaterial({ map: mkTex(14, 14), color: 0x555555 }),
+);
+fl.rotation.x = -Math.PI / 2;
+sc.add(fl);
+const hzm = new T3.Mesh(
+  new T3.CircleGeometry(14.5, 36),
+  new T3.MeshBasicMaterial({
+    color: 0x8a0c0c,
+    transparent: true,
+    opacity: 0.88,
+    fog: false,
+  }),
+);
+hzm.rotation.x = -Math.PI / 2;
+sc.add(hzm);
+const pm = new T3.MeshPhongMaterial({
+    map: mkTex(10, 2),
+    color: 0x888888,
+    side: T3.DoubleSide,
+    shininess: 0,
+  }),
+  ps = new T3.MeshBasicMaterial({
+    color: 0xe8c040,
+    side: T3.DoubleSide,
+    fog: false,
+  });
+sc.add(new T3.AmbientLight(0x6a6a6a));
+const lamp = new T3.PointLight(0xffe0bd, 0.75, 26, 1.3);
+cam.add(lamp);
+// spores
+{
+  const n = 4500,
+    a = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const r = Math.sqrt(Math.random()) * 13,
+      t = Math.random() * 6.28;
+    a[i * 3] = Math.cos(t) * r;
+    a[i * 3 + 1] = Math.random() * 700;
+    a[i * 3 + 2] = Math.sin(t) * r;
+  }
+  const g = new T3.BufferGeometry();
+  g.setAttribute("position", new T3.BufferAttribute(a, 3));
+  sc.add(
+    new T3.Points(
+      g,
+      new T3.PointsMaterial({
+        size: 0.09,
+        color: 0xcfc8c0,
+        transparent: true,
+        opacity: 0.6,
+      }),
+    ),
+  );
+}
+
+</script>
+    <script>
+/**
+ * Height-based colour zones (Substructure, Underworks, Nest).
+ */
+const Z = [
+    [0, 0x6e6c3c, 0x0e0e06],
+    [110, 0x8c8c94, 0x060608],
+    [240, 0x7a55d8, 0x0a0618],
+  ],
+  c1 = new T3.Color(),
+  c2 = new T3.Color(),
+  ta = new T3.Color(),
+  tb = new T3.Color();
+function zone(h) {
+  let k = 0;
+  while (k < 2 && h >= Z[k + 1][0]) k++;
+  const a = Z[k],
+    b = Z[Math.min(k + 1, 2)],
+    L = b[0] - a[0],
+    f = k == 2 ? 0 : Math.min(1, Math.max(0, (h - a[0] - L * 0.6) / (L * 0.4)));
+  c1.setHex(a[1]).lerp(ta.setHex(b[1]), f);
+  c2.setHex(a[2]).lerp(tb.setHex(b[2]), f);
+}
+
+</script>
+    <script>
+/**
+ * Procedural climbing routes, handhold meshes and parkour-district layout.
+ */
+// holds
+let seed = 11;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const H = [],
+  dm = new T3.Object3D();
+let an = 0;
+const PB = [150, 300, 450, 600],
+  RP = [],
+  CR = [],
+  RF = {};
+let md = 0,
+  mc = 0,
+  dr = 1;
+for (let y = 2.3; y < 700;) {
+  const pk = PB.find((b) => y >= b && y < b + 10);
+  if (pk) {
+    if (!RF[pk]) {
+      RF[pk] = 1;
+      const dd = (pk / 150) % 2 ? 1 : -1;
+      for (let i = 0; i < 8; i++)
+        RP.push([
+          pk + 1 + i * 1.1,
+          an + dd * (0.4 + i * 0.4 + rnd() * 0.06),
+          i,
+        ]);
+      CR.push([pk - 4, an - dd * 0.4]);
+      an += dd * 3.3;
+    }
+    y = pk + 10;
+    continue;
+  }
+  if (--mc <= 0) {
+    md = (rnd() * 5) | 0;
+    mc = 6 + ((rnd() * 8) | 0);
+    dr = rnd() < 0.5 ? -1 : 1;
+  }
+  for (let k = 0; k < 2; k++) {
+    const a = an + (k ? 1 : -1) * (0.06 + rnd() * 0.08);
+    H.push(
+      new T3.Vector3(Math.cos(a) * 13.55, y + rnd() * 0.4, Math.sin(a) * 13.55),
+    );
+  }
+  an +=
+    md == 0
+      ? (rnd() - 0.5) * 0.1
+      : md == 1
+        ? dr * 0.14
+        : md == 2
+          ? dr * 0.07
+          : md == 3
+            ? dr * 0.17
+            : (rnd() < 0.5 ? -1 : 1) * 0.2;
+  y += md == 3 ? 0.4 + rnd() * 0.3 : 0.9 + rnd() * 0.95;
+}
+const hi = new T3.InstancedMesh(
+  new T3.BoxGeometry(0.95, 0.42, 0.75),
+  new T3.MeshPhongMaterial({
+    map: hT(),
+    color: 0xdad0b8,
+    emissive: 0x2a2418,
+    shininess: 0,
+  }),
+  H.length,
+);
+H.forEach((p, i) => {
+  dm.position.copy(p);
+  dm.lookAt(0, p.y, 0);
+  dm.rotation.z = (rnd() - 0.5) * 0.3;
+  dm.updateMatrix();
+  hi.setMatrixAt(i, dm.matrix);
+});
+sc.add(hi);
+
+</script>
+    <script>
+/**
+ * Rest platforms every 50 m (ledges, elevators, pipe catwalks) and their pickups.
+ */
+const PL = [],
+  IT = [],
+  WV = new T3.Vector3(),
+  gb = (w, h, d, m, x, y, z, p) => {
+    const o = new T3.Mesh(new T3.BoxGeometry(w, h, d), m);
+    o.position.set(x, y, z);
+    p.add(o);
+    return o;
+  };
+function pad(y, k) {
+  let ca = 0,
+    j = 1e9;
+  H.forEach((p) => {
+    const d = Math.abs(p.y - y);
+    if (d < j) {
+      j = d;
+      ca = Math.atan2(p.z, p.x);
+    }
+  });
+  const ty = (k + 2) % 3,
+    mk = () => {
+      const o = new T3.Object3D();
+      o.position.set(Math.cos(ca) * 11.7, y - 0.6, Math.sin(ca) * 11.7);
+      o.lookAt(0, y - 0.6, 0);
+      sc.add(o);
+      return o;
+    },
+    m = mk(),
+    mt = (c) => new T3.MeshBasicMaterial({ color: c });
+  if (ty == 0) {
+    gb(6.4, 1.2, 4.6, pm, 0, 0, 0, m);
+    gb(2.4, 16, 2.4, pm, 3.4, -8.6, -1.2, m);
+  } else if (ty == 1) {
+    gb(6.4, 0.9, 4.4, pm, 0, 0.15, 0, m);
+    const r = mk();
+    [-3.5, 3.5].forEach((s) => {
+      const c = new T3.Mesh(new T3.CylinderGeometry(0.18, 0.18, 26, 5), pm);
+      c.position.set(s, 0, -1.9);
+      r.add(c);
+    });
+  } else {
+    [
+      [0.8, -0.2, 0],
+      [0.5, -0.3, -1.6],
+    ].forEach(([rd, yy, zz]) => {
+      const c = new T3.Mesh(new T3.CylinderGeometry(rd, rd, 6.4, 8), pm);
+      c.rotation.z = 1.5708;
+      c.position.set(0, yy, zz);
+      m.add(c);
+    });
+    gb(0.5, 6, 0.5, pm, 2.4, -3.2, -1.6, m);
+  }
+  gb(6.4, 0.1, 0.14, ps, 0, ty == 1 ? 0.66 : ty == 2 ? 0.5 : 0.66, 2.2, m);
+  const it = k % 2 ? "chalk" : "ammo",
+    o = new T3.Group();
+  if (it == "gun") {
+    gb(0.9, 0.28, 0.3, mt(0x6b645a), 0, 0, 0, o);
+    gb(0.26, 0.5, 0.26, mt(0x3a3631), -0.3, -0.3, 0, o);
+  } else
+    gb(0.55, 0.55, 0.55, mt(it == "ammo" ? 0xc8742a : 0xe8e8e8), 0, 0, 0, o);
+  o.position.set(1, 1.1, 0.4);
+  m.add(o);
+  IT.push({ o, t: it, on: 1 });
+  const q = {
+    y0: y,
+    amp: ty == 1 ? 4 : 0,
+    sp: 0.7,
+    ph: k * 1.3,
+    ca,
+    m,
+    top: 0,
+    pt: 0,
+    v: 0,
+  };
+  q.top = q.pt = q.y0 + q.amp * Math.sin(q.ph);
+  m.position.y = q.top - 0.6;
+  PL.push(q);
+}
+for (let k = 1; k < 14; k++) pad(k * 50, k);
+
+</script>
+    <script>
+/**
+ * Parkour districts: rooftops (houses, towers, scaffolds) and cranes.
+ */
+const mtb = (c) => new T3.MeshBasicMaterial({ color: c });
+function roof(y, a, i) {
+  const o = new T3.Object3D(),
+    t = i % 3;
+  o.position.set(Math.cos(a) * 11.7, y - 0.6, Math.sin(a) * 11.7);
+  o.lookAt(0, y - 0.6, 0);
+  sc.add(o);
+  if (t == 0) {
+    gb(3.4, 0.6, 4.2, pm, 0, 0.3, 0, o);
+    gb(3, 4, 3.6, pm, 0, -2.2, -0.2, o);
+    [-0.8, 0.8].forEach((x) =>
+      gb(0.7, 0.9, 0.1, mtb(0xffc860), x, -1.6, 1.65, o),
+    );
+    gb(0.8, 1.6, 0.1, mtb(0x120a08), 0, -3, 1.65, o);
+    gb(0.5, 1.2, 0.5, pm, -1, 1.2, -1, o);
+  } else if (t == 1) {
+    gb(3.4, 0.6, 3.4, pm, 0, 0.3, 0, o);
+    gb(2.2, 20, 2.2, pm, 0, -10.3, -0.4, o);
+    gb(0.3, 0.3, 0.3, mtb(0xff2020), 1.3, 0.8, 1, o);
+  } else {
+    gb(3.4, 0.3, 3, pm, 0, 0.45, 0, o);
+    const oc = mtb(0xc86a20);
+    [
+      [-1.6, -1.4],
+      [1.6, -1.4],
+      [-1.6, 1.4],
+      [1.6, 1.4],
+    ].forEach(([x, z]) => gb(0.2, 9, 0.2, oc, x, -4, z, o));
+    gb(3.4, 0.15, 0.15, oc, 0, -1.5, 1.4, o);
+    gb(0.15, 0.15, 3, oc, 1.6, -3, 0, o);
+  }
+  PL.push({
+    y0: y,
+    amp: 0,
+    sp: 0,
+    ph: 0,
+    ca: a,
+    m: o,
+    top: y,
+    pt: y,
+    v: 0,
+    hw: 0.13,
+  });
+}
+function crane(a, y) {
+  const o = new T3.Object3D(),
+    cm = mtb(0xb85a1c);
+  o.position.set(Math.cos(a) * 12.9, y, Math.sin(a) * 12.9);
+  o.lookAt(0, y, 0);
+  sc.add(o);
+  gb(0.7, 30, 0.7, cm, 0, 11, 0, o);
+  gb(11, 0.6, 0.6, cm, 3.5, 25.8, 0, o);
+  gb(2.2, 1.4, 1.4, mtb(0x3a3a3a), -3.2, 25.4, 0, o);
+  gb(0.06, 6, 0.06, mtb(0x222222), 6.5, 22.7, 0, o);
+  gb(0.5, 0.5, 0.5, cm, 6.5, 19.5, 0, o);
+}
+RP.forEach(([y, a, i]) => roof(y, a, i));
+CR.forEach(([y, a]) => crane(a, y));
+
+</script>
+    <script>
+/**
+ * Starting-area pickups (dart gun and darts).
+ */
+{
+  const f = (t, x, z, c) => {
+    const o = new T3.Group();
+    if (t == "gun") {
+      gb(0.9, 0.28, 0.3, mtb(0x6b645a), 0, 0, 0, o);
+      gb(0.26, 0.5, 0.26, mtb(0x3a3631), -0.3, -0.3, 0, o);
+    } else gb(0.55, 0.55, 0.55, mtb(c), 0, 0, 0, o);
+    o.position.set(x, 0.6, z);
+    sc.add(o);
+    IT.push({ o, t, on: 1 });
+  };
+  f("gun", 11.4, 1.6);
+  f("ammo", 11.2, -1.6, 0xc8742a);
+}
+
+</script>
+    <script>
+/**
+ * Power-up orbs, virtual wall holds, grappling hook and per-frame power-up logic.
+ */
+const PW = { dj: 0, wg: 0, hk: 0, st: 0 },
+  PUD = { dj: 50, wg: 40, hk: 60, st: 25 },
+  PN = [
+    ["dj", "DOUBLE JUMP"],
+    ["wg", "WALL GRIP"],
+    ["hk", "GRAPPLE HOOK"],
+    ["st", "ADRENALINE"],
+  ],
+  HK = { on: 0, a: new T3.Vector3(), l: 0 },
+  PU = [],
+  PUC = { dj: 0x58d8ff, wg: 0xffd24a, hk: 0xa5ff6a, st: 0xff5a8a },
+  PUT = ["hk", "dj", "wg", "st"];
+let dj = 1;
+[22, 64, 110, 175, 215, 255, 330, 370, 410, 490, 530, 570].forEach((y, j) => {
+  let b = H[0],
+    bd = 1e9;
+  H.forEach((p) => {
+    const d = Math.abs(p.y - y);
+    if (d < bd) {
+      bd = d;
+      b = p;
+    }
+  });
+  const t = PUT[j % 4],
+    a = Math.atan2(b.z, b.x) + (j % 2 ? -0.3 : 0.3),
+    o = new T3.Group();
+  o.add(
+    new T3.Mesh(
+      new T3.IcosahedronGeometry(0.45, 0),
+      new T3.MeshBasicMaterial({ color: PUC[t] }),
+    ),
+    new T3.Mesh(
+      new T3.IcosahedronGeometry(0.8, 0),
+      new T3.MeshBasicMaterial({ color: PUC[t], wireframe: true }),
+    ),
+  );
+  o.position.set(Math.cos(a) * 12.4, b.y + 0.9, Math.sin(a) * 12.4);
+  sc.add(o);
+  PU.push({ o, t, on: 1 });
+});
+const VI = [H.length, H.length + 1];
+H.push(new T3.Vector3(0, -999, 0), new T3.Vector3(0, -999, 0));
+const hkL = new T3.Line(
+  new T3.BufferGeometry().setFromPoints([new T3.Vector3(), new T3.Vector3()]),
+  new T3.LineBasicMaterial({ color: 0xd8c9a0 }),
+);
+hkL.frustumCulled = false;
+hkL.visible = false;
+sc.add(hkL);
+function hook() {
+  if (HK.on) {
+    HK.on = 0;
+    snd("click");
+    return;
+  }
+  if (PW.hk <= 0) return;
+  cam.getWorldDirection(F);
+  const a = F.x * F.x + F.z * F.z,
+    b = 2 * (P.x * F.x + P.z * F.z),
+    c = P.x * P.x + P.z * P.z - 182.25,
+    D = b * b - 4 * a * c;
+  if (a < 1e-4 || D < 0) return;
+  const t = (-b + Math.sqrt(D)) / (2 * a);
+  if (t < 1 || t > 34) return;
+  HK.a.set(P.x + F.x * t, P.y + F.y * t, P.z + F.z * t);
+  if (HK.a.y < 1) return;
+  HK.l = t;
+  HK.on = 1;
+  snd("hook");
+}
+function hkSim(dt) {
+  for (const k in PW) PW[k] = Math.max(0, PW[k] - dt);
+  if (G || hs.some((h) => h.i >= 0)) dj = 1;
+  PU.forEach((u) => {
+    if (u.on && u.o.position.distanceTo(P) < 2.7) {
+      u.on = 0;
+      u.o.visible = false;
+      PW[u.t] = PUD[u.t];
+      snd("pw");
+      const e = $("tst");
+      e.textContent = PN.find((n) => n[0] == u.t)[1] + " ACQUIRED";
+      setTimeout(() => (e.textContent = ""), 2200);
+    }
+  });
+  if (PW.hk <= 0) HK.on = 0;
+  if (!HK.on) return;
+  const d = P.clone().sub(HK.a),
+    L = d.length() || 1;
+  fell = 0;
+  if (K.KeyW) HK.l = Math.max(2.5, HK.l - 7 * dt);
+  if (K.KeyS) HK.l = Math.min(34, HK.l + 7 * dt);
+  if (L > HK.l) {
+    d.divideScalar(L);
+    P.copy(HK.a).addScaledVector(d, HK.l);
+    const vr = V.dot(d);
+    if (vr > 0) V.addScaledVector(d, -vr);
+  }
+  const mx = (K.KeyD ? 1 : 0) - (K.KeyA ? 1 : 0);
+  if (mx) {
+    V.x += Math.cos(yaw) * mx * 9 * dt;
+    V.z += -Math.sin(yaw) * mx * 9 * dt;
+  }
+}
+
+</script>
+    <script>
+/**
+ * The hunter: mesh, legs and shared state.
+ */
+let MB; // hunter body mesh (animated in game/render.js)
+// monster + gun
+const MG = new T3.Group(),
+  mb = new T3.MeshLambertMaterial({ color: 0x14161f, emissive: 0x12040a }),
+  mo = new T3.MeshBasicMaterial({ color: 0x8a2a12 }),
+  legs = [],
+  M = { on: 0, p: new T3.Vector3(), sl: 0, cd: 0, fl: 0 };
+{
+  const b = new T3.Mesh(new T3.IcosahedronGeometry(1.1, 1), mb);
+  b.scale.set(1, 0.8, 1.3);
+  MG.add(b);
+  MB = b;
+  for (let i = 0; i < 7; i++) {
+    const e = new T3.Mesh(
+      new T3.SphereGeometry(0.2, 6, 4),
+      new T3.MeshBasicMaterial({ color: 0xff1818 }),
+    );
+    e.position.set(((i % 3) - 1) * 0.4, 0.25 + (i > 2) * 0.3, 1.35);
+    MG.add(e);
+  }
+  for (let i = 0; i < 8; i++) {
+    const l = new T3.Group(),
+      u = new T3.Mesh(new T3.CylinderGeometry(0.07, 0.1, 2.4, 5), mb),
+      d = new T3.Mesh(new T3.CylinderGeometry(0.05, 0.07, 2.2, 5), mb),
+      s = new T3.Mesh(new T3.ConeGeometry(0.2, 0.7, 4), mo);
+    u.position.set(1, 0.5, 0);
+    u.rotation.z = -1.1;
+    d.position.set(2.57, 0.06, 0);
+    d.rotation.z = -2.67;
+    s.position.set(2.07, 1.2, 0);
+    l.add(u, d, s);
+    MG.add(l);
+    legs.push(l);
+  }
+}
+MG.scale.setScalar(1.4);
+MG.visible = false;
+sc.add(MG);
+
+</script>
+    <script>
+/**
+ * WebAudio engine: context, oscillator and noise helpers.
+ */
+// audio
+let AC, mg, wg, wf, NB;
+function au() {
+  if (!AC) {
+    AC = new (window.AudioContext || window.webkitAudioContext)();
+    mg = AC.createGain();
+    mg.gain.value = 0.4;
+    {
+      const c = AC.createDynamicsCompressor();
+      mg.connect(c);
+      c.connect(AC.destination);
+    }
+    const b = AC.createBuffer(1, AC.sampleRate, AC.sampleRate),
+      d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    NB = b;
+    const s = AC.createBufferSource();
+    s.buffer = b;
+    s.loop = true;
+    wf = AC.createBiquadFilter();
+    wf.type = "lowpass";
+    wg = AC.createGain();
+    wg.gain.value = 0.03;
+    s.connect(wf).connect(wg).connect(mg);
+    s.start();
+  }
+  AC.resume();
+}
+function tn(f, d, ty, v, f2) {
+  const t = AC.currentTime,
+    o = AC.createOscillator(),
+    g = AC.createGain();
+  o.type = ty;
+  o.frequency.setValueAtTime(f, t);
+  if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  g.gain.setValueAtTime(v, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(g).connect(mg);
+  o.start(t);
+  o.stop(t + d);
+}
+function nz(d, v, f) {
+  const t = AC.currentTime,
+    s = AC.createBufferSource(),
+    b = AC.createBiquadFilter(),
+    g = AC.createGain();
+  s.buffer = NB;
+  b.type = "bandpass";
+  b.frequency.value = f;
+  g.gain.setValueAtTime(v, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + d);
+  s.connect(b).connect(g).connect(mg);
+  s.start(t);
+  s.stop(t + d);
+}
+
+</script>
+    <script>
+/**
+ * All sound effects (single table) and the snd() player.
+ */
+const SN = {
+  grab: () => {
+    tn(110, 0.09, "sine", 0.3, 55);
+    nz(0.05, 0.12, 1500);
+  },
+  jump: () => {
+    nz(0.22, 0.18, 600);
+    tn(150, 0.15, "sine", 0.12, 260);
+  },
+  shot: () => {
+    nz(0.12, 0.5, 2200);
+    tn(220, 0.1, "triangle", 0.25, 70);
+  },
+  hit: () => {
+    tn(95, 0.35, "sine", 0.45, 38);
+    nz(0.2, 0.35, 350);
+  },
+  hit2: () => {
+    tn(720, 0.16, "sine", 0.18, 420);
+  },
+  die: () => {
+    tn(180, 0.9, "sine", 0.3, 50);
+  },
+  roar: () => {
+    nz(0.9, 0.35, 200);
+    tn(75, 0.9, "triangle", 0.25, 45);
+  },
+  click: () => nz(0.03, 0.15, 3500),
+  land: () => {
+    tn(85, 0.2, "sine", 0.4, 40);
+    nz(0.1, 0.2, 220);
+  },
+  pick: () => {
+    tn(520, 0.12, "sine", 0.18);
+    setTimeout(() => AC && tn(780, 0.18, "sine", 0.18), 90);
+  },
+  hov: () => {
+    tn(1500, 0.04, "sine", 0.05, 1200);
+    nz(0.03, 0.04, 4500);
+  },
+  open: () => {
+    nz(0.3, 0.22, 550);
+    tn(160, 0.22, "sine", 0.18, 90);
+    tn(330, 0.2, "sine", 0.07, 495);
+  },
+  back: () => {
+    tn(300, 0.14, "sine", 0.12, 150);
+    nz(0.1, 0.14, 700);
+  },
+  start: () => {
+    tn(70, 1.1, "sine", 0.45, 32);
+    nz(0.8, 0.28, 250);
+    [0, 90, 170, 260].forEach((d) =>
+      setTimeout(() => AC && nz(0.07, 0.22, 2800), d),
+    );
+  },
+  deny: () => tn(150, 0.1, "square", 0.05, 110),
+  step: () => {
+    tn(95 + Math.random() * 25, 0.07, "sine", 0.12, 55);
+    nz(0.05, 0.1, 700);
+  },
+  creak: () => tn(55 + Math.random() * 30, 1.3, "triangle", 0.05, 40),
+  drip: () => {
+    tn(2000 + Math.random() * 600, 0.07, "sine", 0.05, 900);
+    setTimeout(() => AC && tn(1200, 0.05, "sine", 0.03, 700), 120);
+  },
+  pw: () => {
+    [0, 70, 140].forEach((d, i) =>
+      setTimeout(() => AC && tn(500 + i * 180, 0.18, "sine", 0.14), d),
+    );
+  },
+  hook: () => {
+    nz(0.15, 0.3, 3000);
+    tn(900, 0.12, "triangle", 0.15, 350);
+  },
+};
+const snd = (n) => {
+  if (AC)
+    try {
+      SN[n]();
+    } catch (e) {}
+};
+
+</script>
+    <script>
+/**
+ * Pixel-art sprites: hands and the gun-holding hand.
+ */
+// pixel hands
+const HP = [
+  "..##.##.##..",
+  ".#ww#ww#ww#.",
+  ".#ww#ww#ww#.",
+  ".#wwwwwwww#.",
+  "#wwwwwwwwww#",
+  "#wgwwwwwwgw#",
+  "#wwwwwwwwww#",
+  ".#wwwwwwww#.",
+  ".#wwwwwwgw#.",
+  "..#wwwwwww#.",
+  "..#wwwwww#..",
+  "..#wwwwww#..",
+  "..#wwwwww#..",
+  "..##########",
+];
+function hand(p, cls, id) {
+  const c = document.createElement("canvas");
+  c.width = 12;
+  c.height = 14;
+  c.className = cls;
+  if (id) c.id = id;
+  const g = c.getContext("2d");
+  HP.forEach((r, y) =>
+    [...r].forEach((ch, x) => {
+      if (ch == ".") return;
+      g.fillStyle = p[ch];
+      g.fillRect(x, y, 1, 1);
+    }),
+  );
+  document.body.appendChild(c);
+  return c;
+}
+const PK = { "#": "#2a1a24", w: "#ecc8dc", g: "#b58aa2" },
+  RD = { "#": "#2a0808", w: "#b92a2a", g: "#7c1717" };
+const HD = [hand(PK, "hd", "h0"), hand(PK, "hd", "h1")],
+  WH = [hand(RD, "wh"), hand(RD, "wh")];
+const GP = [
+    "....g....g......",
+    "...kkkkkkkkkk...",
+    "..kddmmmmmmddk..",
+    "..kdmlllllmmdk..",
+    "..kdmlllllmmdk..",
+    "..kdmmmmmmmmdk..",
+    "..kddddlldddddk.",
+    "..kdmmmmmmmmdk..",
+    "..kddddddddddk..",
+    "..kdmmmmmmmmdk..",
+    "..kdddddddddk...",
+    "...kkkkkkkkk....",
+    "..kwwwwwwwwwk...",
+    ".kwwswwswwswwk..",
+    ".kwwwwwwwwwwwk..",
+    ".kwswwwwwwwswk..",
+    ".kwwwwwwwwwwwk..",
+    "..kwwwwwwwwwk...",
+  ],
+  PC = {
+    k: "#16100c",
+    d: "#3d352f",
+    m: "#5e544b",
+    l: "#84776a",
+    g: "#6f6",
+    w: "#ecc8dc",
+    s: "#b58aa2",
+  };
+{
+  const c = $("gn");
+  document.body.appendChild(c); // keep the gun above the hand sprites
+  c.width = 16;
+  c.height = GP.length;
+  const g = c.getContext("2d");
+  GP.forEach((r, y) =>
+    [...r].forEach((ch, x) => {
+      if (PC[ch]) {
+        g.fillStyle = PC[ch];
+        g.fillRect(x, y, 1, 1);
+      }
+    }),
+  );
+}
+
+</script>
+    <script>
+/**
+ * Inventory slots, flashlight, equip / use / discard.
+ */
+const SL = [null, null, null, null, null],
+  IN = { gun: "GUN", chalk: "CHALK" };
+let sel = -1;
+const eq = () => (sel >= 0 && SL[sel] ? SL[sel].t : null),
+  tl = new T3.SpotLight(0xfff0d0, 2.4, 50, 0.55, 0.45, 1);
+cam.add(tl);
+cam.add(tl.target);
+tl.target.position.set(0, 0, -6);
+const torch = () => {
+  tl.intensity = tl.intensity ? 0 : 2.4;
+  snd("click");
+};
+function addI(t) {
+  const s = SL.find((x) => x && x.t == t && t == "chalk");
+  if (s) {
+    s.n++;
+    return 1;
+  }
+  const i = SL.indexOf(null);
+  if (i < 0) return 0;
+  SL[i] = { t, n: 1 };
+  return 1;
+}
+function slot(i) {
+  const s = SL[i];
+  if (!s) return;
+  if (s.t == "chalk") {
+    hs.forEach((h) => {
+      h.s = 100;
+      h.lk = 0;
+    });
+    if (--s.n < 1) SL[i] = null;
+    showIt(0xeeeeee);
+    snd("pick");
+    return;
+  }
+  sel = sel == i ? -1 : i;
+  if (eq() == "gun") {
+    hs[1].i = -1;
+    hs[1].dn = 0;
+  }
+  snd("click");
+}
+function drop() {
+  if (sel < 0) return;
+  SL[sel] = null;
+  sel = -1;
+  snd("click");
+}
+
+</script>
+    <script>
+/**
+ * Picking up world items.
+ */
+function take() {
+  if (!nIt) return;
+  const i = nIt;
+  if (i.t == "ammo") {
+    ammo += 6;
+    showIt(0xc8742a);
+  } else {
+    if (!addI(i.t)) {
+      snd("click");
+      return;
+    }
+    if (i.t == "gun") {
+      ammo += 8;
+      sel = SL.findIndex((x) => x && x.t == "gun");
+      hs[1].i = -1;
+      hs[1].dn = 0;
+      const g = $("gn");
+      g.style.transition = "transform .45s";
+      g.style.transform = "translateY(180px)";
+      setTimeout(() => {
+        g.style.transform = "";
+        setTimeout(() => (g.style.transition = ""), 500);
+      }, 30);
+    } else showIt(0xeeeeee);
+  }
+  i.on = 0;
+  i.o.visible = false;
+  snd("pick");
+  nIt = null;
+}
+
+</script>
+    <script>
+/**
+ * Dart gun firing.
+ */
+function fire() {
+  if (eq() != "gun") return;
+  if (ammo < 1) {
+    if (gcd <= 0) {
+      snd("click");
+      gcd = 0.3;
+    }
+    return;
+  }
+  if (gcd > 0) return;
+  ammo--;
+  gcd = 0.3;
+  snd("shot");
+  pitch += 0.03;
+  shk = 0.15;
+  const g = $("gn"),
+    f = $("mf");
+  g.classList.add("f");
+  f.style.opacity = 1;
+  setTimeout(() => {
+    g.classList.remove("f");
+    f.style.opacity = 0;
+  }, 80);
+  cam.getWorldDirection(F);
+  if (M.on) {
+    const d = M.p.clone().sub(P),
+      t = d.dot(F);
+    if (t > 0) {
+      const q = d.addScaledVector(F, -t).length();
+      if (q < 2.6 + t * 0.04) {
+        M.sl = 6;
+        M.fl = 0.2;
+        snd("hit2");
+      }
+    }
+  }
+}
+
+</script>
+    <script>
+/**
+ * Hand grabbing: grab impulse and handhold / wall-grip picking.
+ */
+function grabFx(i) {
+  snd("grab");
+  const p = H[i];
+  V.x += (p.x - P.x) * 2;
+  V.y += (p.y - P.y) * 2;
+  V.z += (p.z - P.z) * 2;
+}
+function pick(skip, hd) {
+  cam.getWorldDirection(F);
+  let b = -1,
+    bd = 0.62;
+  for (let i = 0; i < H.length; i++) {
+    if (i == skip) continue;
+    const p = H[i],
+      x = p.x - P.x,
+      y = p.y - P.y,
+      z = p.z - P.z;
+    if (y < -1.2 && y > -9) continue;
+    const d = Math.hypot(x, y, z);
+    if (d > 3.7 || d < 0.2) continue;
+    const o = (x * F.x + y * F.y + z * F.z) / d;
+    if (o > bd) {
+      bd = o;
+      b = i;
+    }
+  }
+  if (b < 0 && hd != null && PW.wg > 0) {
+    const a = F.x * F.x + F.z * F.z,
+      bq = 2 * (P.x * F.x + P.z * F.z),
+      c = P.x * P.x + P.z * P.z - 182.25,
+      D = bq * bq - 4 * a * c;
+    if (a > 1e-4 && D > 0) {
+      const t = (-bq + Math.sqrt(D)) / (2 * a);
+      if (t > 0.3 && t < 3.8) {
+        const q = VI[hd];
+        H[q].set(P.x + F.x * t, P.y + F.y * t, P.z + F.z * t);
+        return q;
+      }
+    }
+  }
+  return b;
+}
+
+</script>
+    <script>
+/**
+ * Jump logic (ground, off-hold, hook release, double jump).
+ */
+function jump() {
+  const gg = hs.filter((h) => h.i >= 0);
+  if (HK.on) {
+    HK.on = 0;
+    V.y += 5;
+    snd("jump");
+    return;
+  }
+  if (G) {
+    V.y = 9.5;
+    snd("jump");
+    return;
+  }
+  if (gg.length) {
+    if (gg.some((h) => h.s < 8)) return;
+    cam.getWorldDirection(F);
+    const l = Math.hypot(F.x, F.z) || 1;
+    V.set((F.x / l) * 3.5, 11.5, (F.z / l) * 3.5);
+    gg.forEach((h) => {
+      h.s -= 7;
+      h.i = -1;
+      h.cd = 0.22;
+    });
+    snd("jump");
+    return;
+  }
+  if (PW.dj > 0 && dj) {
+    dj = 0;
+    V.y = Math.max(V.y, 0) + 9;
+    shk = 0.1;
+    snd("jump");
+  }
+}
+
+</script>
+    <script>
+/**
+ * HUD helpers: item-in-hand popup, hotbar slots, mouse-wheel selection.
+ */
+function showIt(c) {
+  const e = $("it"),
+    g = e.getContext("2d");
+  g.clearRect(0, 0, 8, 8);
+  g.fillStyle = "#1a1410";
+  g.fillRect(1, 1, 6, 6);
+  g.fillStyle = "#" + c.toString(16).padStart(6, "0");
+  g.fillRect(2, 2, 4, 4);
+  e.className = "on";
+  setTimeout(() => (e.className = ""), 1300);
+}
+addEventListener("wheel", (e) => {
+  if (st != "play") return;
+  const n = SL.map((s, i) => (s ? i : -1)).filter((i) => i >= 0);
+  if (n.length) {
+    sel = n[(n.indexOf(sel) + (e.deltaY > 0 ? 1 : -1) + n.length) % n.length];
+    if (eq() == "gun") {
+      hs[1].i = -1;
+      hs[1].dn = 0;
+    }
+  }
+});
+for (let i = 0; i < 5; i++) {
+  const d = document.createElement("div");
+  d.className = "sl";
+  $("inv").appendChild(d);
+}
+
+</script>
+    <script>
+/**
+ * Game flow: overlay visibility, reset and death.
+ */
+const vis = (i, on) =>
+  ($(i).style.display = on ? (i == "menu" ? "block" : "flex") : "none");
+function reset() {
+  P.set(12, 1.7, 0);
+  V.set(0, 0, 0);
+  yaw = -1.57;
+  pitch = 0.35;
+  hz = -7;
+  tt = 0;
+  fell = 0;
+  M.on = 0;
+  M.sl = 0;
+  M.cd = 0;
+  hp = 3;
+  ammo = 0;
+  SL.fill(null);
+  sel = -1;
+  G = 0;
+  tl.intensity = 2.4;
+  PW.dj = PW.wg = PW.hk = PW.st = 0;
+  HK.on = 0;
+  dj = 1;
+  PU.forEach((u) => {
+    u.on = 1;
+    u.o.visible = true;
+  });
+  IT.forEach((i) => {
+    i.on = 1;
+    i.o.visible = true;
+  });
+  hs.forEach((h) => {
+    h.i = -1;
+    h.s = 100;
+    h.lk = 0;
+    h.dn = 0;
+    h.cd = 0;
+    h.rg = 0;
+  });
+  st = "play";
+  au();
+  vis("menu", 0);
+  vis("play", 0);
+  vis("end", 0);
+  $("hud").style.display = "block";
+  if (TOUCH) enterTouchMode();
+  else if (cv.requestPointerLock) cv.requestPointerLock();
+}
+function die(t) {
+  st = "end";
+  snd("die");
+  HK.on = 0;
+  hkL.visible = false;
+  ht = Math.max(0, P.y - 1.7);
+  if (ht > best) {
+    best = ht;
+    try {
+      localStorage.setItem("wk_best", best);
+    } catch (e) {}
+  }
+  if (document.exitPointerLock) document.exitPointerLock();
+  $("et").textContent = t;
+  $("es").textContent =
+    "HEIGHT " +
+    ht.toFixed(1) +
+    " M   BEST " +
+    best.toFixed(1) +
+    " M   TIME " +
+    tt.toFixed(1) +
+    " S";
+  vis("end", 1);
+  $("hud").style.display = "none";
+  WH.forEach((w) => (w.style.display = "none"));
+}
+
+</script>
+    <script>
+/**
+ * Main menu wiring, menu sounds and ambience.
+ */
+["pointerdown", "keydown"].forEach((v) => addEventListener(v, () => au()));
+document.addEventListener("mouseover", (e) => {
+  const t = e.target.closest && e.target.closest("#menu li,#cl,.cd");
+  if (t && t !== lastH && st == "menu") snd("hov");
+  lastH = t;
+});
+document.addEventListener(
+  "click",
+  (e) => {
+    if (st != "menu") return;
+    const t = e.target.closest && e.target.closest("#menu li,#cl,.cd");
+    if (t)
+      snd(
+        t.id == "mp"
+          ? "open"
+          : t.id == "cl"
+            ? "back"
+            : t.id == "camp"
+              ? "start"
+              : "deny",
+      );
+  },
+  true,
+);
+setInterval(() => {
+  if (st == "menu" && AC && Math.random() < 0.65)
+    snd(Math.random() < 0.5 ? "drip" : "creak");
+}, 3000);
+// UI wiring
+[
+  ["Beat The Campaign", "Endless Substructure"],
+  ["Reach Habitation", "Endless Underworks"],
+  ["Reach Pipeworks", "Endless Silos"],
+  ["Reach 2000 Meters", "Endless Pipeworks"],
+  ["Beat the Campaign on Hard Mode", "Endless Habitation"],
+].forEach(([s, t]) => {
+  const d = document.createElement("div");
+  d.className = "cd";
+  d.innerHTML =
+    '<svg viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0110 0v3h2v11H5V10zm2 0h6V7a3 3 0 00-6 0z" fill="#8a8a8a"/></svg><em>' +
+    s +
+    "</em><b>" +
+    t +
+    "</b>";
+  $("cards").appendChild(d);
+});
+$("mp").onclick = () => {
+  vis("play", 1);
+};
+$("cl").onclick = () => vis("play", 0);
+$("camp").onclick = reset;
+$("end").onclick = reset;
+$("pz").onclick = () => cv.requestPointerLock();
+document.addEventListener("pointerlockchange", () =>
+  vis("pz", st == "play" && !document.pointerLockElement),
+);
+
+</script>
+    <script>
+/**
+ * Mouse and keyboard input (touch lives in touch.js).
+ */
+/** Press hand n (0 = left, 1 = right). With the gun equipped the right hand fires instead. */
+function grabDown(n) {
+  if (st != "play") return;
+  if (n == 1 && eq() == "gun") {
+    fire();
+    return;
+  }
+  hs[n].dn = 1;
+}
+/** Release hand n (short regrab cooldown if it was holding something). */
+function grabUp(n) {
+  const h = hs[n];
+  h.dn = 0;
+  if (h.i >= 0) h.cd = 0.5;
+  h.i = -1;
+}
+addEventListener("mousemove", (e) => {
+  if (st == "play" && document.pointerLockElement) {
+    yaw -= e.movementX * 0.0022;
+    pitch = Math.max(-1.5, Math.min(1.5, pitch - e.movementY * 0.0022));
+  }
+});
+addEventListener("contextmenu", (e) => e.preventDefault());
+addEventListener("mousedown", (e) => {
+  if (
+    st != "play" ||
+    !document.pointerLockElement ||
+    e.button > 2 ||
+    e.button == 1
+  )
+    return;
+  grabDown(e.button ? 1 : 0);
+});
+addEventListener("mouseup", (e) => {
+  if (e.button > 2 || e.button == 1) return;
+  grabUp(e.button ? 1 : 0);
+});
+addEventListener("keydown", (e) => {
+  K[e.code] = 1;
+  if (e.code == "Space" && st == "play" && !e.repeat) jump();
+  if (e.code == "KeyR" && st == "play") reset();
+  if (e.code == "KeyF" && st == "play") torch();
+  if (e.code == "KeyE" && st == "play") take();
+  if (e.code == "KeyQ" && st == "play") drop();
+  if (e.code == "KeyX" && st == "play") hook();
+  if (/^Digit[1-5]$/.test(e.code) && st == "play") slot(+e.code[5] - 1);
+});
+addEventListener("keyup", (e) => (K[e.code] = 0));
+
+</script>
+    <script>
+/**
+ * Touch controls for phones/tablets: virtual joystick, drag-to-look, grab / jump / utility
+ * buttons, tappable hotbar and item prompt. Also provides inputActive() for the main loop.
+ */
+/** True while the game should simulate: pointer locked (desktop) or landscape (touch). */
+function inputActive() {
+  return !!document.pointerLockElement || (TOUCH && innerWidth >= innerHeight);
+}
+/** Best-effort fullscreen + landscape lock when a run starts on a phone. */
+function enterTouchMode() {
+  const de = document.documentElement,
+    rf = de.requestFullscreen || de.webkitRequestFullscreen;
+  try {
+    if (rf && !document.fullscreenElement) {
+      const p = rf.call(de);
+      if (p && p.then)
+        p.then(
+          () =>
+            screen.orientation &&
+            screen.orientation.lock &&
+            screen.orientation.lock("landscape"),
+        ).catch(() => {});
+    }
+  } catch (e) {}
+}
+if (TOUCH) {
+  const capture = (el, e) => {
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  };
+  /** Hold-style button: down() on press, up() on release/cancel. */
+  const bindBtn = (id, down, up) => {
+    const el = $(id),
+      end = (e) => {
+        e.preventDefault();
+        el.classList.remove("on");
+        if (up) up();
+      };
+    el.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      capture(el, e);
+      el.classList.add("on");
+      down();
+    });
+    ["pointerup", "pointercancel"].forEach((t) => el.addEventListener(t, end));
+  };
+  const play = (fn) => () => {
+    if (st == "play") fn();
+  };
+  bindBtn(
+    "tg0",
+    () => grabDown(0),
+    () => grabUp(0),
+  );
+  bindBtn(
+    "tg1",
+    () => grabDown(1),
+    () => grabUp(1),
+  );
+  bindBtn("tjp", play(jump));
+  bindBtn("tlt", play(torch));
+  bindBtn("thk", play(hook));
+  bindBtn("tdr", play(drop));
+  $("pr").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    if (st == "play") take();
+  });
+  $("inv").addEventListener("pointerdown", (e) => {
+    const d = e.target.closest && e.target.closest(".sl");
+    if (d && st == "play") {
+      e.preventDefault();
+      slot([...$("inv").children].indexOf(d));
+    }
+  });
+
+  // Virtual joystick -> WASD flags (full push = sprint)
+  const joy = $("joy"),
+    knob = $("knob"),
+    JR = 50;
+  let joyId = null,
+    joyC = { x: 0, y: 0 };
+  const joyMove = (e) => {
+    const dx = e.clientX - joyC.x,
+      dy = e.clientY - joyC.y,
+      d = Math.hypot(dx, dy) || 1,
+      k = Math.min(1, d / JR),
+      nx = (dx / d) * k,
+      ny = (dy / d) * k;
+    knob.style.transform = `translate(${nx * JR}px,${ny * JR}px)`;
+    K.KeyA = nx < -0.35 ? 1 : 0;
+    K.KeyD = nx > 0.35 ? 1 : 0;
+    K.KeyW = ny < -0.35 ? 1 : 0;
+    K.KeyS = ny > 0.35 ? 1 : 0;
+    K.ShiftLeft = k > 0.95 ? 1 : 0;
+  };
+  const joyEnd = () => {
+    joyId = null;
+    knob.style.transform = "";
+    K.KeyA = K.KeyD = K.KeyW = K.KeyS = K.ShiftLeft = 0;
+  };
+  joy.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    joyId = e.pointerId;
+    const r = joy.getBoundingClientRect();
+    joyC = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    capture(joy, e);
+    joyMove(e);
+  });
+  joy.addEventListener("pointermove", (e) => {
+    if (e.pointerId === joyId) joyMove(e);
+  });
+  ["pointerup", "pointercancel"].forEach((t) =>
+    joy.addEventListener(t, (e) => {
+      if (e.pointerId === joyId) joyEnd();
+    }),
+  );
+
+  // Drag anywhere on the scene to look around
+  let look = null;
+  cv.addEventListener("pointerdown", (e) => {
+    if (st == "play" && !look && e.pointerType !== "mouse")
+      look = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  });
+  addEventListener("pointermove", (e) => {
+    if (!look || e.pointerId !== look.id) return;
+    yaw -= (e.clientX - look.x) * 0.0055;
+    pitch = Math.max(
+      -1.5,
+      Math.min(1.5, pitch - (e.clientY - look.y) * 0.0055),
+    );
+    look.x = e.clientX;
+    look.y = e.clientY;
+  });
+  ["pointerup", "pointercancel"].forEach((t) =>
+    addEventListener(t, (e) => {
+      if (look && e.pointerId === look.id) look = null;
+    }),
+  );
+
+  // Keep the page still while playing; tweak texts for touch
+  document.addEventListener(
+    "touchmove",
+    (e) => st == "play" && e.preventDefault(),
+    { passive: false },
+  );
+  $("end").lastElementChild.textContent = "TAP TO CLIMB AGAIN";
+}
+
+</script>
+    <script>
+/**
+ * Per-frame simulation: stamina, grips, physics, monster AI, landing and death.
+ */
+// sim
+function sim(dt) {
+  tt += dt;
+  PL.forEach((q) => {
+    q.pt = q.top;
+    const a = tt * q.sp + q.ph;
+    q.top = q.y0 + q.amp * Math.sin(a);
+    q.v = q.amp * q.sp * Math.cos(a);
+    q.m.position.y = q.top - 0.6;
+  });
+  const g = hs.filter((h) => h.i >= 0).length;
+  for (const h of hs) {
+    h.cd = Math.max(0, h.cd - dt);
+    if (h.i >= 0) {
+      h.s -= (PW.st > 0 ? 0 : 1) * (5 + Math.min(5, V.length() * 0.4)) * dt;
+      if (h.s <= 0) {
+        h.s = 0;
+        h.i = -1;
+        h.lk = 1;
+      }
+    } else if ((h.rg -= dt) < 0) {
+      h.s = Math.min(100, h.s + (g ? 18.9 : G ? 63 : 35.7) * dt);
+    }
+    if (h.lk && h.s > 20) h.lk = 0;
+    if (
+      h.dn &&
+      h.i < 0 &&
+      !h.lk &&
+      !h.cd &&
+      h.s > 8 &&
+      !(h === hs[1] && eq() == "gun")
+    ) {
+      const o = hs[0] == h ? hs[1].i : hs[0].i;
+      h.i = pick(o, hs.indexOf(h));
+      if (h.i >= 0) {
+        h.s -= 4;
+        h.rg = 0.5;
+        grabFx(h.i);
+      }
+    }
+  }
+  const gg = hs.filter((h) => h.i >= 0);
+  if (gg.length) {
+    let tx = 0,
+      ty = 0,
+      tz = 0;
+    for (const h of gg) {
+      const p = H[h.i],
+        r = Math.hypot(p.x, p.z);
+      tx += p.x * (1 - 1.15 / r);
+      ty += p.y - 1.3;
+      tz += p.z * (1 - 1.15 / r);
+    }
+    const n = gg.length;
+    V.x += (tx / n - P.x) * 34 * dt;
+    V.y += ((ty / n - P.y) * 34 - 10) * dt;
+    V.z += (tz / n - P.z) * 34 * dt;
+    V.multiplyScalar(Math.max(0, 1 - 3.2 * dt));
+    fell = 0;
+  } else {
+    V.y = Math.max(-42, V.y - 25 * dt);
+    fell = Math.max(fell, -V.y);
+    if (!G) {
+      V.x *= 1 - 0.12 * dt;
+      V.z *= 1 - 0.12 * dt;
+    }
+  }
+  const mx = (K.KeyD ? 1 : 0) - (K.KeyA ? 1 : 0),
+    mz = (K.KeyW ? 1 : 0) - (K.KeyS ? 1 : 0),
+    s = (gg.length ? 5 : G ? (K.ShiftLeft ? 52 : 30) : 9) * dt,
+    c = Math.cos(yaw),
+    n = Math.sin(yaw);
+  V.x += (c * mx - n * mz) * s;
+  V.z += (-n * mx - c * mz) * s;
+  P.addScaledVector(V, dt);
+  hkSim(dt);
+  const r = Math.hypot(P.x, P.z);
+  if (r > 12.75) {
+    P.x *= 12.75 / r;
+    P.z *= 12.75 / r;
+    const d = (V.x * P.x + V.z * P.z) / 12.75 / 12.75;
+    if (d > 0) {
+      V.x -= P.x * d;
+      V.z -= P.z * d;
+    }
+  }
+  gcd -= dt;
+  M.sl -= dt;
+  M.cd -= dt;
+  M.fl -= dt;
+  if (ht > 150 && !M.on) {
+    M.on = 1;
+    const a = Math.atan2(P.z, P.x);
+    M.p.set(Math.cos(a) * 13.2, Math.max(3, P.y - 26), Math.sin(a) * 13.2);
+    snd("roar");
+  }
+  if (M.on) {
+    const d = P.clone().sub(M.p),
+      L = d.length() || 1,
+      sp = (2.9 + Math.min(2, ht * 0.003)) * (M.sl > 0 ? 0.2 : 1);
+    M.p.addScaledVector(d, (sp * dt) / L);
+    M.p.y = Math.max(1.5, M.p.y);
+    const mr = Math.hypot(M.p.x, M.p.z) || 1;
+    M.p.x *= 13.2 / mr;
+    M.p.z *= 13.2 / mr;
+    if (L < 2.7 && M.cd <= 0) {
+      M.cd = 1.6;
+      hp--;
+      snd("hit");
+      shk = 0.5;
+      d.normalize();
+      V.set(d.x * 12, d.y * 6 + 7, d.z * 12);
+      hs.forEach((h) => {
+        h.i = -1;
+        h.cd = 0.4;
+        h.s = Math.min(h.s, 25);
+      });
+      if (hp <= 0) return die("MAULED");
+    }
+  }
+  if (tt > 5) hz += (0.4 + Math.max(0, P.y) * 0.0016) * dt;
+  if (P.y < hz + 0.9) return die("CONSUMED");
+  const py = P.y - V.y * dt;
+  let gr = 0,
+    dd = 0;
+  const an2 = Math.atan2(P.z, P.x),
+    L = (ty, vy) => {
+      if (fell > 26) dd = 1;
+      if (V.y < -5) snd("land");
+      P.y = ty + 1.7;
+      V.y = vy;
+      V.x *= 1 - 8 * dt;
+      V.z *= 1 - 8 * dt;
+      fell = 0;
+      gr = 1;
+    };
+  if (P.y < 1.7 && py >= 1.68) L(0, 0);
+  for (const q of PL)
+    if (P.y < q.top + 1.7 && py >= q.pt + 1.68 && r > 9.6) {
+      let d = Math.abs(an2 - q.ca);
+      d = Math.min(d, 6.283 - d);
+      if (d < (q.hw || 0.27)) L(q.top, q.v);
+    }
+  if (dd) {
+    G = gr;
+    return die("YOU FELL");
+  }
+  G = gr;
+  if (G && Math.hypot(V.x, V.z) > 1.5 && (stepT -= dt) <= 0) {
+    stepT = K.ShiftLeft ? 0.27 : 0.42;
+    snd("step");
+  }
+  ht = Math.max(0, P.y - 1.7);
+  if (ht >= 640) die("SURFACE REACHED");
+}
+
+</script>
+    <script>
+/**
+ * Per-frame rendering: camera, monster animation and HUD updates.
+ */
+// render
+const fm = (n, f) => n.toFixed(f);
+let roll = 0;
+function draw(t) {
+  const zh = st == "menu" ? 285 : P.y;
+  zone(zh);
+  wm.color.copy(c1);
+  sc.fog.color.copy(c2);
+  rn.setClearColor(c2);
+  if (st == "menu") {
+    cam.position.set(0, 285, 0);
+    cam.rotation.set(0.1, t * 0.06, 0, "YXZ");
+  } else {
+    cam.position.copy(P);
+    if (shk > 0) {
+      cam.position.x += (Math.random() - 0.5) * shk;
+      cam.position.y += (Math.random() - 0.5) * shk;
+      shk -= 0.012;
+    }
+    const sp = V.length(),
+      rv = V.x * Math.cos(yaw) - V.z * Math.sin(yaw);
+    roll += (Math.max(-0.14, Math.min(0.14, -rv * 0.014)) - roll) * 0.1;
+    cam.rotation.set(pitch, yaw, roll, "YXZ");
+    const fv = 82 + Math.min(18, sp * 0.9);
+    if (Math.abs(cam.fov - fv) > 0.2) {
+      cam.fov += (fv - cam.fov) * 0.12;
+      cam.updateProjectionMatrix();
+    }
+  }
+  hzm.position.y = hz;
+  {
+    const sp = st == "play" ? V.length() : 0;
+    if (wg) {
+      wg.gain.setTargetAtTime(
+        Math.max(0, Math.min(0.12, (sp - 12) * 0.008)),
+        AC.currentTime,
+        0.15,
+      );
+      wf.frequency.value = 300 + sp * 20;
+    }
+    MG.visible = !!M.on;
+    if (M.on) {
+      MG.position.copy(M.p);
+      MG.lookAt(P);
+      const sl = M.sl > 0;
+      const rt = sl ? 2.2 : 9,
+        nr = M.p.distanceTo(P) < 9;
+      legs.forEach((l, i) => {
+        const ph = t * rt + (i % 2) * 3.14 + i * 0.5;
+        l.rotation.set(
+          0,
+          (i / 8) * 6.28 + Math.sin(ph) * 0.28,
+          Math.max(0, Math.sin(ph + 1.6)) * 0.45 - 0.1,
+        );
+      });
+      MB.position.y = Math.sin(t * rt * 2) * 0.1;
+      MB.scale.set(
+        1 + Math.sin(t * 3) * 0.03,
+        0.8,
+        1.3 + (nr && !sl ? 0.15 * Math.sin(t * 14) : 0),
+      );
+      mb.emissive.setHex(M.fl > 0 ? 0xffffff : sl ? 0x1840a0 : 0x12040a);
+    }
+    IT.forEach((i) => {
+      i.o.rotation.y = t * 1.6;
+      i.o.position.y = 1.1 + Math.sin(t * 2.2) * 0.12;
+    });
+    $("gn").style.display = st == "play" && eq() == "gun" ? "block" : "none";
+    $("gn").style.opacity = 1;
+    HD.forEach((h) => (h.style.display = st == "play" ? "" : "none"));
+  }
+  if (st != "play") return;
+  $("ht").textContent = fm(ht, 1) + " M";
+  $("st2").textContent =
+    "HP " +
+    hp +
+    (eq() == "gun" ? "   DARTS " + ammo : "") +
+    (M.sl > 0 ? "   SLOWED" : "") +
+    (tl.intensity ? "" : "   LIGHT OFF");
+  [...$("inv").children].forEach((d, i) => {
+    const s = SL[i];
+    d.textContent =
+      i + 1 + (s ? " " + IN[s.t] + (s.n > 1 ? " x" + s.n : "") : "");
+    d.className = "sl" + (i == sel ? " on" : "");
+  });
+  $("pw").innerHTML = PN.filter(([k]) => PW[k] > 0)
+    .map(([k, n]) => n + " " + Math.ceil(PW[k]) + "S")
+    .join("<br>");
+  PU.forEach((u) => {
+    u.o.rotation.y = t * 2;
+    u.o.rotation.x = t * 1.2;
+  });
+  hkL.visible = !!HK.on;
+  if (HK.on) {
+    const pa = hkL.geometry.attributes.position;
+    cam.localToWorld(WV.set(0.45, -0.45, -0.8));
+    pa.setXYZ(0, WV.x, WV.y, WV.z);
+    pa.setXYZ(1, HK.a.x, HK.a.y, HK.a.z);
+    pa.needsUpdate = true;
+  }
+  nIt = null;
+  {
+    let bd = 2.8;
+    for (const i of IT)
+      if (i.on) {
+        const d = i.o.getWorldPosition(WV).distanceTo(P);
+        if (d < bd) {
+          bd = d;
+          nIt = i;
+        }
+      }
+  }
+  $("pr").textContent = nIt
+    ? (TOUCH ? "TAP TO TAKE " : "[E] TAKE ") +
+      { gun: "DART GUN", ammo: "DARTS", chalk: "CHALK" }[nIt.t] +
+      (SL.includes(null) || nIt.t == "ammo" ? "" : " (FULL)")
+    : "";
+  $("tm").textContent = $("ot").checked
+    ? ((tt / 60) | 0) + ":" + fm(tt % 60, 2).padStart(5, "0")
+    : "";
+  $("dg").style.opacity = Math.min(0.85, Math.max(0, 1 - (P.y - hz) / 14));
+  $("ch").className = pick(-1) >= 0 ? "on" : "";
+  hs.forEach((h, i) => {
+    const b = $("b" + i),
+      f = b.firstChild;
+    f.style.height = h.s + "%";
+    f.style.background =
+      h.s < 28
+        ? (t * 8) % 2 < 1
+          ? "#d41f1f"
+          : "#fff"
+        : h.lk
+          ? "#822"
+          : "#eee";
+    HD[i].style.bottom = h.dn && h.i < 0 ? "-10px" : "-60px";
+    HD[i].style.opacity = h.i >= 0 || (i && eq() == "gun") ? 0 : 1;
+    const w = WH[i];
+    if (h.i >= 0) {
+      const v = H[h.i].clone().project(cam);
+      if (v.z < 1) {
+        w.style.display = "block";
+        w.style.left = ((v.x + 1) / 2) * innerWidth + "px";
+        w.style.top = ((1 - v.y) / 2) * innerHeight + "px";
+        w.style.transform = (i ? "scaleX(-1) " : "") + "rotate(-8deg)";
+      } else w.style.display = "none";
+    } else w.style.display = "none";
+  });
+}
+
+</script>
+    <script>
+/**
+ * Entry point: main loop.
+ */
+let last = performance.now();
+(function loop(n) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, (n - last) / 1000);
+  last = n;
+  if (st == "play" && inputActive()) sim(dt);
+  draw(n / 1000);
+  rn.render(sc, cam);
+})(last);
+
+</script>
+  </body>
+</html>
