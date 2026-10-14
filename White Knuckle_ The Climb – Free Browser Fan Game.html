@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="White Knuckle: The Climb – a free first-person vertical climbing horror game that runs in your browser. Unofficial fan game.">
+<title>White Knuckle: The Climb – Free Browser Fan Game</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07060a;--ink:#efeaf4;--mut:#a39bb3;--card:#110e17;--line:#2b2437;--red:#e0272b;--pur:#8d6bff;--ol:#a3a248;--cy:#58d8ff;--am:#ffd24a;--gr:#a5ff6a;--pk:#ff5a8a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(72px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+*{box-sizing:border-box}
+body{margin:0;background:#07060a;color:var(--ink);font:400 17px/1.65 'Oswald','Arial Narrow',Arial,sans-serif;letter-spacing:.01em;overflow-x:hidden}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px);z-index:50}
+a{color:inherit;text-decoration:none}
+#lang{background:#110e17;color:var(--ink);border:1px solid var(--line);font:500 14px Oswald,sans-serif;text-transform:uppercase;padding:8px;cursor:pointer}#lang:hover{border-color:var(--pur)}
+.px{font-family:'Silkscreen','Courier New',monospace;letter-spacing:.04em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:40;background:rgba(7,6,10,.82);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{font:700 22px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.04em}.logo b{color:var(--pur);font:700 13px Silkscreen,monospace;margin-left:8px}
+nav ul{display:flex;gap:26px;margin:0 0 0 auto;padding:0;list-style:none;font-size:15px;text-transform:uppercase;color:var(--mut)}nav ul a:hover{color:#fff}
+.btn{display:inline-flex;align-items:center;gap:10px;font:700 18px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.06em;padding:14px 30px;background:var(--red);color:#fff;border:2px solid #ff5a5e;box-shadow:5px 5px 0 #5a0d10;transition:.12s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 #5a0d10;background:#f03338}.btn.sm{padding:8px 18px;font-size:15px;box-shadow:3px 3px 0 #5a0d10}
+.btn.ghost{background:transparent;border-color:#6b5f80;box-shadow:5px 5px 0 #1d1727}.btn.ghost:hover{background:#1a1424}
+#hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;padding-top:64px}
+#hero canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+#hero::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#07060af2 8%,#07060a66 60%,transparent),radial-gradient(ellipse at center,transparent 40%,#000a)}
+#hero .wrap{position:relative;z-index:2;width:100%}
+.tag{display:inline-block;font-size:12px;color:var(--gr);border:1px solid #3d5a2a;padding:4px 10px;margin-bottom:22px}
+h1{margin:0;line-height:.92}.w{display:block;font:700 clamp(54px,10vw,132px)/.95 Oswald,Impact,sans-serif;text-transform:uppercase;text-shadow:5px 5px 0 #9b1b2a}
+.s{display:block;font:700 clamp(46px,9vw,118px)/1.05 Silkscreen,monospace;background:linear-gradient(#c3b2ff,#6a2fd0);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px #7a4cff77)}
+.lead{max-width:540px;font-size:21px;color:#d8d0e6;margin:26px 0 34px}
+.cta{display:flex;gap:18px;flex-wrap:wrap}
+.note{margin-top:18px;font-size:13px;color:var(--mut)}
+.strip{background:#0c0911;border-block:1px solid var(--line)}
+.strip .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding-block:26px;text-align:center}
+.strip b{display:block;font:700 40px Oswald,sans-serif;color:#fff}.strip span{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.12em}
+section{padding:100px 0}h2{font:700 clamp(38px,5vw,60px)/1 Oswald,sans-serif;text-transform:uppercase;margin:0 0 14px}
+.eyebrow{font-size:12px;color:var(--pur);margin-bottom:12px;display:block}.sub{color:var(--mut);max-width:620px;margin:0 0 48px;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.card{background:var(--card);border:1px solid var(--line);padding:28px;position:relative;transition:.18s}.card:hover{border-color:var(--pur);transform:translateY(-4px)}
+.card i{font:700 13px Silkscreen,monospace;color:var(--red);font-style:normal}.card h3{margin:8px 0 8px;font:700 24px Oswald,sans-serif;text-transform:uppercase}.card p{margin:0;color:var(--mut);font-size:16px}
+.zones{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0;border:1px solid var(--line)}
+.zone{padding:56px 32px 48px;min-height:360px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden}
+.zone::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 2px,transparent 2px 4px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 24px,transparent 24px 48px)}
+.zone>*{position:relative}.zone small{font:700 13px Silkscreen,monospace;opacity:.85}.zone h3{font:700 38px Oswald,sans-serif;text-transform:uppercase;margin:6px 0}.zone p{margin:0;max-width:340px;color:#e5def0}
+.z1{background:linear-gradient(#1c1a09,#4a4a1e)}.z2{background:linear-gradient(#0a0a0e,#42434d)}.z3{background:linear-gradient(#0d0620,#5b36b8)}
+.pw{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.pw .card{border-top:4px solid var(--c)}.pw .orb{width:34px;height:34px;background:var(--c);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);margin-bottom:14px;filter:drop-shadow(0 0 10px var(--c))}.pw em{display:block;margin-top:12px;font:400 12px Silkscreen,monospace;color:var(--c);font-style:normal}
+#hunt{background:radial-gradient(ellipse at 75% 50%,#3a0509,#07060a 65%);border-block:1px solid #2a0b0e}
+.two{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center}
+.eyes{aspect-ratio:1.4;background:#030204;border:1px solid #2a0b0e;position:relative;overflow:hidden;box-shadow:inset 0 0 90px #000}
+.eyes span{position:absolute;width:12px;height:12px;background:#ff1818;box-shadow:0 0 22px 6px #ff1818aa;animation:bl 4.5s infinite}
+.eyes::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(0,0,0,.35) 0 3px,transparent 3px 6px)}
+@keyframes bl{0%,92%,100%{opacity:1}95%{opacity:0}}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px 36px}
+.k{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}.k kbd{min-width:62px;text-align:center;font:700 13px Silkscreen,monospace;background:#1b1624;border:2px solid #4b4060;border-bottom-width:5px;padding:6px 8px;color:#fff}.k span{color:var(--mut);font-size:16px}
+details{border-bottom:1px solid var(--line);padding:20px 0}summary{cursor:pointer;font:700 21px Oswald,sans-serif;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between}summary::after{content:'+';color:var(--red);font-size:26px;line-height:1}details[open] summary::after{content:'–'}details p{color:var(--mut);margin:12px 0 0;max-width:760px}
+#end{text-align:center;background:linear-gradient(#07060a,#1b0509 120%)}#end h2{font-size:clamp(44px,7vw,88px)}
+footer{border-top:1px solid var(--line);padding:36px 0 48px;font-size:13px;color:var(--mut)}footer .wrap{display:flex;gap:28px;flex-wrap:wrap;justify-content:space-between}footer p{max-width:700px;margin:0}
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s,transform .7s}.rv.in{opacity:1;transform:none}
+@media(max-width:820px){nav ul{display:none}#lang{margin-left:auto}.two{grid-template-columns:1fr}section{padding:72px 0}}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}html{scroll-behavior:auto}.eyes span{animation:none}}
+</style></head><body>
+<nav><div class="wrap"><a class="logo" href="#top">White Knuckle<b>THE CLIMB</b></a>
+<ul><li><a href="#features">Features</a></li><li><a href="#zones">Zones</a></li><li><a href="#powerups">Power-ups</a></li><li><a href="#controls">Controls</a></li><li><a href="#faq">FAQ</a></li></ul>
+<select id="lang" aria-label="Language"><option value="en">English</option><option value="pt">Português (BR)</option><option value="es">Español</option></select><a class="btn sm" href="https://claude.ai/artifact/QVn1ZWxdKD8YV5k8grqFqm" target="_blank" rel="noopener">Play free</a></div></nav>
+
+<header id="hero"><canvas id="hero-c" aria-hidden="true"></canvas><div class="wrap" id="top">
+<span class="tag px">FREE · BROWSER · FAN GAME</span>
+<h1><span class="w">White Knuckle</span><span class="s">THE CLIMB</span></h1>
+<p class="lead">A first-person vertical climbing horror game in your browser. Grab. Swing. Jump. Don't let go — and don't look down at what's rising.</p>
+<div class="cta"><a class="btn" href="https://claude.ai/artifact/QVn1ZWxdKD8YV5k8grqFqm" target="_blank" rel="noopener">Play now – it's free</a><a class="btn ghost" href="#features">See what's inside</a></div>
+<p class="note">No download. No account. Desktop browser with mouse &amp; keyboard. Headphones recommended.</p></div></header>
+
+<div class="strip"><div class="wrap"><div><b>640 M</b><span>to the surface</span></div><div><b>4</b><span>parkour districts</span></div><div><b>4</b><span>power-ups</span></div><div><b>3</b><span>zones</span></div><div><b>0 MB</b><span>to install</span></div></div></div>
+
+<section id="features"><div class="wrap"><span class="eyebrow px rv">// WHAT YOU'LL DO</span><h2 class="rv">Climb like your grip depends on it</h2><p class="sub rv">Inspired by the tension of the original, rebuilt as a quick-to-launch browser tribute with its own routes, creatures and tricks.</p>
+<div class="grid">
+<div class="card rv"><i>01</i><h3>Two-hand grip</h3><p>Left and right click grab independently. Every hold drains stamina — chalk up, rest on a ledge, or fall.</p></div>
+<div class="card rv"><i>02</i><h3>Routes that never repeat</h3><p>Vertical, diagonal, zig-zag and long sideways traverses wind up a 700 m silo. Read the wall, pick your line.</p></div>
+<div class="card rv"><i>03</i><h3>Parkour districts</h3><p>Every 150 m the holds vanish: sprint and leap across rooftops, towers, scaffolds and cranes.</p></div>
+<div class="card rv"><i>04</i><h3>Something is climbing</h3><p>Past 150 m a hunter follows you up the wall. Find the dart gun, slow it, keep moving.</p></div>
+<div class="card rv"><i>05</i><h3>Momentum &amp; inertia</h3><p>Pull, lunge, swing and throw yourself between holds. Elevator ledges and pipe catwalks keep you honest.</p></div>
+<div class="card rv"><i>06</i><h3>Pixel-dither horror</h3><p>Low-res rendering, fog, flashlight cone and a handmade sound mix tuned for dread, not noise.</p></div>
+</div></div></section>
+
+<section id="zones" style="background:#0a080e"><div class="wrap"><span class="eyebrow px rv">// THE SILO</span><h2 class="rv">Three zones. One way is up.</h2><p class="sub rv">The palette — and the danger — shifts the higher you get.</p>
+<div class="zones rv"><div class="zone z1"><small>0 – 110 M</small><h3>Substructure</h3><p>Rust, moss and old brick. The easy part. Relatively.</p></div><div class="zone z2"><small>110 – 240 M</small><h3>Underworks</h3><p>Steel, pipes and warning lights. Colder, tighter, steeper.</p></div><div class="zone z3"><small>240 M +</small><h3>The Nest</h3><p>Violet growth on every wall. Something lives here.</p></div></div></div></section>
+
+<section id="powerups"><div class="wrap"><span class="eyebrow px rv">// HIDDEN ORBS</span><h2 class="rv">Power-ups, just out of reach</h2><p class="sub rv">Twelve glowing orbs float off the main route. You'll need a jump, a swing or a traverse to grab them.</p>
+<div class="pw">
+<div class="card rv" style="--c:var(--cy)"><div class="orb"></div><h3>Double jump</h3><p>Jump again in mid-air to save a bad leap.</p><em>SPACE IN AIR · 50 S</em></div>
+<div class="card rv" style="--c:var(--am)"><div class="orb"></div><h3>Wall grip</h3><p>Grab any point on the wall, not just holds.</p><em>CLICK ON WALL · 40 S</em></div>
+<div class="card rv" style="--c:var(--gr)"><div class="orb"></div><h3>Grappling hook</h3><p>Shoot a rope and swing like a pendulum. Reel in or let out.</p><em>X · W/S · A/D · 60 S</em></div>
+<div class="card rv" style="--c:var(--pk)"><div class="orb"></div><h3>Adrenaline</h3><p>Hang on without draining stamina.</p><em>AUTO · 25 S</em></div>
+</div></div></section>
+
+<section id="hunt"><div class="wrap two"><div><span class="eyebrow px rv" style="color:var(--red)">// 150 M AND ABOVE</span><h2 class="rv">It heard you climbing</h2><p class="sub rv" style="margin-bottom:28px">A many-legged hunter drops into the shaft below and crawls toward you, faster the higher you go. Every hit knocks you off the wall.</p>
+<div class="rv"><span class="px" style="font-size:12px;color:var(--mut)">YOUR ANSWER:</span><p style="margin:8px 0 0;color:#d8d0e6">Grab the <b>dart pistol</b> from the floor at the start. Equip it, and your right hand is busy — climb one-handed or keep shooting. A hit slows the creature for 6 seconds.</p></div></div>
+<div class="eyes rv" aria-label="Glowing red eyes in the dark"><span style="left:30%;top:38%"></span><span style="left:38%;top:34%;width:8px;height:8px"></span><span style="left:46%;top:38%"></span><span style="left:41%;top:48%;width:8px;height:8px"></span><span style="left:56%;top:44%;width:7px;height:7px;animation-delay:1.3s"></span></div></div></section>
+
+<section id="controls"><div class="wrap"><span class="eyebrow px rv">// HOW TO PLAY</span><h2 class="rv">Controls</h2><p class="sub rv">Click the game to capture the mouse. Esc releases it.</p>
+<div class="keys rv">
+<div class="k"><kbd>L-CLICK</kbd><span>Grab with left hand</span></div><div class="k"><kbd>R-CLICK</kbd><span>Grab with right hand (fire when gun equipped)</span></div>
+<div class="k"><kbd>SPACE</kbd><span>Jump · off a hold · double jump</span></div><div class="k"><kbd>SHIFT</kbd><span>Sprint on platforms</span></div>
+<div class="k"><kbd>W A S D</kbd><span>Move &amp; steer in the air</span></div><div class="k"><kbd>F</kbd><span>Flashlight</span></div>
+<div class="k"><kbd>E</kbd><span>Take item</span></div><div class="k"><kbd>1–5 / WHEEL</kbd><span>Use or equip inventory slot</span></div>
+<div class="k"><kbd>X</kbd><span>Fire grappling hook</span></div><div class="k"><kbd>Q · R</kbd><span>Discard item · restart run</span></div>
+</div></div></section>
+
+<section id="faq" style="background:#0a080e"><div class="wrap"><span class="eyebrow px rv">// QUESTIONS</span><h2 class="rv" style="margin-bottom:34px">FAQ</h2>
+<details class="rv" open><summary>Is this the official White Knuckle?</summary><p>No. This is an unofficial fan game made as a tribute. It is not affiliated with, endorsed by or sponsored by the developers or publishers of White Knuckle, and it uses no assets from the original. If you enjoy it, go play the original.</p></details>
+<details class="rv"><summary>Is it really free?</summary><p>Yes. It runs in your browser — no installer, no account, nothing to buy.</p></details>
+<details class="rv"><summary>What do I need to play?</summary><p>A desktop or laptop with a mouse and keyboard and a modern browser (Chrome, Edge or Firefox). Touch devices aren't supported.</p></details>
+<details class="rv"><summary>Is my progress saved?</summary><p>Your best height is saved in your browser. Each run starts from the bottom.</p></details>
+<details class="rv"><summary>Does it have sound?</summary><p>Yes — grabs, jumps, footsteps, the dart gun and the things in the dark. Play with headphones.</p></details></div></section>
+
+<section id="end"><div class="wrap"><h2 class="rv">Ready to climb?</h2><p class="sub rv" style="margin-inline:auto">640 metres to the surface. Don't let go.</p><div class="rv"><a class="btn" href="https://claude.ai/artifact/QVn1ZWxdKD8YV5k8grqFqm" target="_blank" rel="noopener">Play free in your browser</a></div></div></section>
+<footer><div class="wrap"><p>White Knuckle: The Climb is an unofficial, non-commercial fan project. “White Knuckle” and related names belong to their respective owners. Not affiliated with or endorsed by the original developers or publishers.</p><p class="px" style="text-align:right">FAN GAME · v0.1 · HTML5</p></div></footer>
+<script>
+const rm=matchMedia('(prefers-reduced-motion:reduce)').matches,c=document.getElementById('hero-c'),x=c.getContext('2d'),W=c.width=192,H=c.height=108;x.imageSmoothingEnabled=false;
+const HP=['..##.##.##..','.#ww#ww#ww#.','.#ww#ww#ww#.','.#wwwwwwww#.','#wwwwwwwwww#','#wgwwwwwwgw#','#wwwwwwwwww#','.#wwwwwwww#.','.#wwwwwwgw#.','..#wwwwwww#.','..#wwwwww#..','..#wwwwww#..','..#wwwwww#..','..##########'],pal={'#':'#2a1a24',w:'#ecc8dc',g:'#b58aa2'};
+const hc=document.createElement('canvas');hc.width=12;hc.height=14;const hx=hc.getContext('2d');HP.forEach((r,y)=>[...r].forEach((ch,i)=>{if(pal[ch]){hx.fillStyle=pal[ch];hx.fillRect(i,y,1,1)}}));
+function frame(t){x.fillStyle='#07050c';x.fillRect(0,0,W,H);
+for(let i=0;i<16;i++){const z=(i/16+t*.00006)%1,r=Math.pow(z,2.3)*140+3;x.strokeStyle=`rgba(${90+z*80|0},${50+z*30|0},${170+z*60|0},${.15+z*.7})`;x.lineWidth=1+(z*3|0);x.beginPath();x.arc(96,42,r,0,6.283);x.stroke()}
+x.strokeStyle='rgba(120,80,200,.25)';x.lineWidth=1;for(let i=0;i<14;i++){const a=i/14*6.283;x.beginPath();x.moveTo(96+Math.cos(a)*4,42+Math.sin(a)*4);x.lineTo(96+Math.cos(a)*150,42+Math.sin(a)*150);x.stroke()}
+for(let i=0;i<60;i++){x.fillStyle=`rgba(255,255,255,${Math.random()*.5})`;x.fillRect(Math.random()*W|0,Math.random()*H|0,1,1)}
+const g=x.createLinearGradient(0,H-30,0,H);g.addColorStop(0,'rgba(180,20,30,0)');g.addColorStop(1,'rgba(180,20,30,.85)');x.fillStyle=g;x.fillRect(0,H-30,W,30);
+const b=Math.sin(t*.002)*3;x.save();x.translate(150,H-20+b);x.rotate(-.25);x.drawImage(hc,0,0);x.restore();x.save();x.translate(44,H-12-b);x.scale(-1,1);x.rotate(-.25);x.drawImage(hc,0,0);x.restore();
+if(!rm)requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll('.rv').forEach(e=>io.observe(e));
+const EL=[...document.querySelectorAll('nav li a,nav .btn,.tag,.lead,.cta .btn,.note,.strip span,.eyebrow,h2,.sub,.card h3,.card p,.zone p,#hunt .px,#hunt .rv>p,.k span,summary,details p,#end .btn,footer p:first-child')],EN=EL.map(e=>e.innerHTML),TT={en:document.title,pt:`White Knuckle: The Climb – Jogo de Fã Grátis no Navegador`,es:`White Knuckle: The Climb – Juego de fans gratis en el navegador`};
+const L={en:EN,
+pt:[`Recursos`,`Zonas`,`Power-ups`,`Controles`,`FAQ`,`Jogar grátis`,`GRÁTIS · NAVEGADOR · JOGO DE FÃ`,`Um jogo de escalada vertical em primeira pessoa, com terror, direto no navegador. Agarre. Balance. Pule. Não solte — e não olhe para o que está subindo.`,`Jogar agora – é grátis`,`Veja o que tem dentro`,`Sem download. Sem conta. Navegador de computador com mouse e teclado. Recomendamos fones de ouvido.`,`até a superfície`,`distritos de parkour`,`power-ups`,`zonas`,`para instalar`,
+`// O QUE VOCÊ VAI FAZER`,`Escale como se sua vida dependesse do aperto`,`Inspirado na tensão do original, recriado como uma homenagem rápida no navegador, com rotas, criaturas e truques próprios.`,
+`Aperto com as duas mãos`,`Clique esquerdo e direito agarram de forma independente. Cada apoio gasta stamina — passe giz, descanse numa borda ou caia.`,`Rotas que nunca se repetem`,`Verticais, diagonais, zigue-zague e longas travessias laterais sobem um silo de 700 m. Leia a parede e escolha seu caminho.`,`Distritos de parkour`,`A cada 150 m os apoios somem: corra e salte entre telhados, torres, andaimes e guindastes.`,`Algo está escalando`,`Depois dos 150 m um caçador sobe a parede atrás de você. Pegue a pistola de dardos, reduza a velocidade dele e não pare.`,`Impulso e inércia`,`Puxe, lance-se, balance e se jogue entre os apoios. Plataformas-elevador e passarelas de cano mantêm você alerta.`,`Horror em pixel e dithering`,`Renderização em baixa resolução, névoa, cone de lanterna e uma mixagem sonora artesanal feita para dar tensão, não ruído.`,
+`// O SILO`,`Três zonas. Um só caminho: para cima.`,`A paleta — e o perigo — muda conforme você sobe.`,`Ferrugem, musgo e tijolo velho. A parte fácil. Relativamente.`,`Aço, canos e luzes de alerta. Mais frio, mais apertado, mais íngreme.`,`Crescimento violeta em todas as paredes. Algo vive aqui.`,
+`// ORBES ESCONDIDOS`,`Power-ups, quase fora de alcance`,`Doze orbes brilhantes flutuam fora da rota principal. Você vai precisar de um pulo, um balanço ou uma travessia para pegá-los.`,`Pulo duplo`,`Pule de novo no ar para salvar um salto ruim.`,`Aperto na parede`,`Agarre qualquer ponto da parede, não só os apoios.`,`Gancho de agarre`,`Lance uma corda e balance como um pêndulo. Puxe ou solte.`,`Adrenalina`,`Fique pendurado sem gastar stamina.`,
+`// A PARTIR DOS 150 M`,`Ele ouviu você escalando`,`Um caçador de muitas patas cai no poço lá embaixo e rasteja até você, mais rápido quanto mais alto você vai. Cada golpe derruba você da parede.`,`SUA RESPOSTA:`,`Pegue a <b>pistola de dardos</b> no chão do início. Equipada, sua mão direita fica ocupada — escale com uma mão só ou continue atirando. Um acerto reduz a velocidade da criatura por 6 segundos.`,
+`// COMO JOGAR`,`Controles`,`Clique no jogo para capturar o mouse. Esc libera.`,`Agarrar com a mão esquerda`,`Agarrar com a mão direita (atira com a arma equipada)`,`Pular · saltar de um apoio · pulo duplo`,`Correr nas plataformas`,`Mover e direcionar no ar`,`Lanterna`,`Pegar item`,`Usar ou equipar slot do inventário`,`Lançar o gancho`,`Descartar item · reiniciar a corrida`,
+`// DÚVIDAS`,`FAQ`,`Este é o White Knuckle oficial?`,`Não. É um jogo de fã não oficial, feito como homenagem. Não tem afiliação, apoio ou patrocínio dos desenvolvedores ou publicadores de White Knuckle e não usa nenhum recurso do original. Se gostar, jogue o original.`,`É realmente grátis?`,`Sim. Roda no navegador — sem instalador, sem conta, sem nada para comprar.`,`O que preciso para jogar?`,`Um computador com mouse e teclado e um navegador moderno (Chrome, Edge ou Firefox). Telas de toque não são compatíveis.`,`Meu progresso é salvo?`,`Sua melhor altura fica salva no navegador. Cada corrida começa do fundo.`,`Tem som?`,`Sim — agarres, pulos, passos, a pistola de dardos e as coisas no escuro. Jogue com fones de ouvido.`,
+`Pronto para escalar?`,`640 metros até a superfície. Não solte.`,`Jogar grátis no navegador`,`White Knuckle: The Climb é um projeto de fã não oficial e sem fins lucrativos. “White Knuckle” e nomes relacionados pertencem aos seus respectivos donos. Sem afiliação ou apoio dos desenvolvedores ou publicadores originais.`],
+es:[`Características`,`Zonas`,`Potenciadores`,`Controles`,`Preguntas`,`Jugar gratis`,`GRATIS · NAVEGADOR · JUEGO DE FANS`,`Un juego de escalada vertical y terror en primera persona, en tu navegador. Agárrate. Balancéate. Salta. No te sueltes — y no mires lo que sube.`,`Jugar ahora – es gratis`,`Mira qué hay dentro`,`Sin descargas. Sin cuenta. Navegador de escritorio con ratón y teclado. Se recomiendan auriculares.`,`hasta la superficie`,`distritos de parkour`,`potenciadores`,`zonas`,`para instalar`,
+`// QUÉ HARÁS`,`Escala como si tu agarre dependiera de ello`,`Inspirado en la tensión del original, recreado como un homenaje rápido en el navegador, con sus propias rutas, criaturas y trucos.`,
+`Agarre con dos manos`,`Clic izquierdo y derecho agarran por separado. Cada presa gasta resistencia: echa tiza, descansa en una repisa o cae.`,`Rutas que nunca se repiten`,`Verticales, diagonales, zigzag y largas travesías laterales suben por un silo de 700 m. Lee la pared y elige tu línea.`,`Distritos de parkour`,`Cada 150 m desaparecen las presas: corre y salta entre tejados, torres, andamios y grúas.`,`Algo está escalando`,`Pasados los 150 m, un cazador trepa la pared tras de ti. Encuentra la pistola de dardos, ralentízalo y sigue moviéndote.`,`Impulso e inercia`,`Tira, lánzate, balancéate y salta entre presas. Repisas-ascensor y pasarelas de tuberías te mantienen alerta.`,`Terror en píxeles y dithering`,`Renderizado en baja resolución, niebla, haz de linterna y una mezcla de sonido artesanal pensada para el temor, no para el ruido.`,
+`// EL SILO`,`Tres zonas. Un solo camino: hacia arriba.`,`La paleta —y el peligro— cambia cuanto más subes.`,`Óxido, musgo y ladrillo viejo. La parte fácil. Relativamente.`,`Acero, tuberías y luces de aviso. Más frío, más estrecho, más empinado.`,`Crecimiento violeta en cada pared. Algo vive aquí.`,
+`// ORBES OCULTOS`,`Potenciadores, casi fuera de alcance`,`Doce orbes brillantes flotan fuera de la ruta principal. Necesitarás un salto, un balanceo o una travesía para cogerlos.`,`Doble salto`,`Salta otra vez en el aire para salvar un mal salto.`,`Agarre de pared`,`Agárrate a cualquier punto de la pared, no solo a las presas.`,`Gancho de agarre`,`Lanza una cuerda y balancéate como un péndulo. Recoge o suelta.`,`Adrenalina`,`Cuélgate sin gastar resistencia.`,
+`// A PARTIR DE 150 M`,`Te oyó escalar`,`Un cazador de muchas patas cae al pozo y repta hacia ti, más rápido cuanto más subes. Cada golpe te tira de la pared.`,`TU RESPUESTA:`,`Coge la <b>pistola de dardos</b> del suelo al inicio. Equipada, tu mano derecha queda ocupada: escala con una mano o sigue disparando. Un impacto ralentiza a la criatura 6 segundos.`,
+`// CÓMO JUGAR`,`Controles`,`Haz clic en el juego para capturar el ratón. Esc lo libera.`,`Agarrar con la mano izquierda`,`Agarrar con la mano derecha (dispara con el arma equipada)`,`Saltar · salir de una presa · doble salto`,`Correr en plataformas`,`Moverte y dirigirte en el aire`,`Linterna`,`Coger objeto`,`Usar o equipar ranura del inventario`,`Disparar el gancho`,`Descartar objeto · reiniciar partida`,
+`// PREGUNTAS`,`Preguntas frecuentes`,`¿Es el White Knuckle oficial?`,`No. Es un juego de fans no oficial, hecho como homenaje. No está afiliado, respaldado ni patrocinado por los desarrolladores o editores de White Knuckle y no usa recursos del original. Si te gusta, juega al original.`,`¿De verdad es gratis?`,`Sí. Funciona en el navegador: sin instalador, sin cuenta, nada que comprar.`,`¿Qué necesito para jugar?`,`Un ordenador con ratón y teclado y un navegador moderno (Chrome, Edge o Firefox). Los dispositivos táctiles no son compatibles.`,`¿Se guarda mi progreso?`,`Tu mejor altura se guarda en el navegador. Cada partida empieza desde abajo.`,`¿Tiene sonido?`,`Sí: agarres, saltos, pasos, la pistola de dardos y lo que acecha en la oscuridad. Juega con auriculares.`,
+`¿Listo para escalar?`,`640 metros hasta la superficie. No te sueltes.`,`Jugar gratis en tu navegador`,`White Knuckle: The Climb es un proyecto de fans no oficial y sin ánimo de lucro. “White Knuckle” y los nombres relacionados pertenecen a sus respectivos dueños. Sin afiliación ni respaldo de los desarrolladores o editores originales.`]};
+function setL(l){const a=L[l]||EN;EL.forEach((e,i)=>{if(a[i]!=null)e.innerHTML=a[i]});document.documentElement.lang={pt:'pt-BR',es:'es',en:'en'}[l]||'en';document.title=TT[l]||TT.en;document.getElementById('lang').value=l;try{localStorage.setItem('wk_lang',l)}catch(e){}}
+document.getElementById('lang').onchange=e=>setL(e.target.value);
+{let sv=null;try{sv=localStorage.getItem('wk_lang')}catch(e){}const nv=(navigator.language||'en').slice(0,2),l=L[sv]?sv:L[nv]?nv:'en';if(l!='en')setL(l)}
+</script></body></html>
