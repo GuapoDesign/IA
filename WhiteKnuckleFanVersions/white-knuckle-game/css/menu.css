@@ -1,0 +1,258 @@
+/* Main menu and Play panel (title, cards, options). */
+
+#menu {
+  display: block;
+  background: linear-gradient(90deg, #0009, transparent 60%);
+}
+
+#logo {
+  position: absolute;
+  left: 12%;
+  top: 12%;
+}
+
+.w {
+  display: block;
+  font:
+    700 clamp(46px, 8vw, 104px)/1 Oswald,
+    Impact,
+    sans-serif;
+  letter-spacing: 0.02em;
+  color: #e9e6ea;
+  text-shadow: 4px 4px 0 #9b1b2a;
+}
+
+.s {
+  display: block;
+  font:
+    700 clamp(60px, 11vw, 150px)/1 Silkscreen,
+    monospace;
+  background: linear-gradient(#b9a4ff, #6a2fd0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px #7a4cff88);
+}
+
+#menu ul {
+  position: absolute;
+  left: 12%;
+  bottom: 8%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 24px;
+}
+
+#menu li {
+  margin: 0 0 30px;
+  cursor: pointer;
+  color: #f4f0ff;
+}
+
+#menu li:hover {
+  color: var(--pur);
+  transform: translateX(8px);
+}
+
+#menu li.d {
+  opacity: 0.4;
+  cursor: default;
+}
+
+#menu li.d:hover {
+  color: inherit;
+  transform: none;
+}
+
+#menu small {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+#play {
+  flex-direction: column;
+  align-items: center;
+  background: #000d;
+  font-family: Oswald, "Arial Narrow", sans-serif;
+  text-align: center;
+  overflow: auto;
+}
+
+#play h2 {
+  font:
+    500 clamp(54px, 8vw, 96px)/1 Oswald,
+    sans-serif;
+  margin: 3vh 0 4vh;
+}
+
+#cards {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  padding: 0 4vw;
+}
+
+.cd {
+  position: relative;
+  width: min(300px, 42vw);
+  height: min(310px, 40vh);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  border: 2px solid #444;
+  background: linear-gradient(#1a1a1a, #0d0d0d);
+  color: #999;
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+.cd b {
+  font:
+    500 clamp(22px, 3vw, 34px)/1 Oswald,
+    sans-serif;
+  text-transform: uppercase;
+  color: #bbb;
+}
+
+.cd em {
+  font-style: normal;
+  font-size: 15px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+.cd svg {
+  width: 84px;
+  height: 84px;
+  margin-bottom: auto;
+  margin-top: 18%;
+}
+
+.cd.on {
+  width: min(420px, 70vw);
+  border-color: #eee;
+  color: #fff;
+  cursor: pointer;
+  background: radial-gradient(
+    ellipse at 50% 40%,
+    #7a0f10 0,
+    #2a0505 45%,
+    #050505 85%
+  );
+}
+
+.cd.on b {
+  color: #fff;
+  font-size: clamp(36px, 5vw, 54px);
+}
+
+.cd.on:hover {
+  transform: scale(1.02);
+  border-color: var(--red);
+}
+
+#opt {
+  margin: 5vh 0 2vh;
+  font:
+    400 18px "Silkscreen",
+    monospace;
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#opt .k {
+  color: #c8742a;
+  opacity: 0.6;
+}
+
+#opt .r {
+  color: var(--red);
+  opacity: 0.6;
+}
+
+#opt h3 {
+  margin: 0;
+  font:
+    500 32px Oswald,
+    sans-serif;
+}
+
+#cl {
+  font:
+    500 52px Oswald,
+    sans-serif;
+  color: var(--red);
+  cursor: pointer;
+  margin-top: 1vh;
+}
+
+#cl:hover {
+  color: #fff;
+}
+
+/* Menu art: icons, title hands, textured cards */
+#menu li {
+  display: flex;
+  align-items: center;
+}
+.mi {
+  height: 38px;
+  width: auto;
+  margin-right: 16px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 #000a);
+  transition: transform 0.12s;
+}
+#menu li:hover .mi {
+  transform: scale(1.18) rotate(-6deg);
+}
+#menu li.d .mi {
+  opacity: 0.45;
+  filter: grayscale(0.6) drop-shadow(2px 2px 0 #000a);
+}
+.mh {
+  position: absolute;
+  width: 176px;
+  height: auto;
+  image-rendering: pixelated;
+  pointer-events: none;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 14px #7a4cff55);
+}
+.mh0 {
+  left: calc(12% - 120px);
+  top: 2%;
+  transform: rotate(32deg) scaleX(-1);
+}
+.mh1 {
+  left: 62%;
+  top: 38%;
+  transform: rotate(212deg);
+}
+.cd {
+  background-size: cover;
+  background-position: center;
+  image-rendering: pixelated;
+}
+.cd .lk {
+  width: 44px;
+  height: auto;
+  margin-top: 16%;
+  margin-bottom: auto;
+  image-rendering: pixelated;
+}
+@media (max-width: 700px) {
+  .mh {
+    display: none;
+  }
+}

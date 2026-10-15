@@ -1,0 +1,62 @@
+/* Page reset, design tokens, canvas, post-process overlays and the .ov overlay primitive. */
+
+:root {
+  --bg: #050505;
+  --red: #d41f1f;
+  --ink: #f1eee8;
+  --pur: #8d6bff;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: #050505;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: "Silkscreen", "Courier New", monospace;
+  user-select: none;
+}
+
+#c {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+
+#fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.8)),
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.2) 0 1px,
+      transparent 1px 3px
+    );
+  mix-blend-mode: multiply;
+}
+
+#dg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, #a00 120%);
+  opacity: 0;
+}
+
+.ov {
+  position: fixed;
+  inset: 0;
+  display: none;
+}

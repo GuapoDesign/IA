@@ -1,0 +1,204 @@
+/* Touch / phone layout. Active only when <body class="touch"> (coarse pointer or ?touch=1). */
+#tc,
+#rot {
+  display: none;
+}
+body.touch #tc {
+  display: block;
+}
+body.touch {
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+body.touch #pz {
+  display: none !important;
+}
+#rot {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: #000;
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font:
+    700 20px/1.8 Silkscreen,
+    monospace;
+  padding: 24px;
+}
+@media (orientation: portrait) {
+  body.touch #rot {
+    display: flex;
+  }
+}
+
+/* Controls */
+#joy {
+  position: absolute;
+  left: calc(22px + env(safe-area-inset-left, 0px));
+  bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 3px solid #fff7;
+  background: #0006;
+  pointer-events: auto;
+  touch-action: none;
+}
+#knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px;
+  border-radius: 50%;
+  background: #ddd9;
+  border: 3px solid #fff;
+}
+.tb {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+  font:
+    700 13px Silkscreen,
+    monospace;
+  color: #fff;
+  background: #000a;
+  border: 3px solid #fffb;
+  border-radius: 50%;
+  padding: 0;
+  user-select: none;
+}
+.tb.on {
+  background: #d41f1fcc;
+  border-color: #fff;
+}
+#tg0,
+#tg1 {
+  width: 84px;
+  height: 84px;
+  bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+#tg1 {
+  right: calc(18px + env(safe-area-inset-right, 0px));
+}
+#tg0 {
+  right: calc(114px + env(safe-area-inset-right, 0px));
+}
+#tjp {
+  width: 74px;
+  height: 74px;
+  right: calc(70px + env(safe-area-inset-right, 0px));
+  bottom: calc(126px + env(safe-area-inset-bottom, 0px));
+  background: #1a3a55bb;
+}
+#ttop {
+  position: absolute;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  display: flex;
+  gap: 8px;
+}
+.tb.sm {
+  position: static;
+  width: auto;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+/* HUD on phones */
+body.touch #ht {
+  left: 14px;
+  top: calc(10px + env(safe-area-inset-top, 0px));
+  font-size: 20px;
+}
+body.touch #st2 {
+  left: 14px;
+  top: calc(38px + env(safe-area-inset-top, 0px));
+  font-size: 11px;
+}
+body.touch #pw {
+  left: 14px;
+  top: calc(60px + env(safe-area-inset-top, 0px));
+  font-size: 10px;
+}
+body.touch #tm {
+  right: 14px;
+  top: calc(56px + env(safe-area-inset-top, 0px));
+  font-size: 13px;
+}
+body.touch .bar {
+  width: 8px;
+  height: 84px;
+  bottom: auto;
+  top: 96px;
+}
+body.touch #b0 {
+  left: 10px;
+}
+body.touch #b1 {
+  right: 10px;
+}
+body.touch #inv {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  gap: 4px;
+  pointer-events: auto;
+}
+body.touch .sl {
+  width: 46px;
+  height: 38px;
+  font-size: 9px;
+  pointer-events: auto;
+}
+body.touch #pr {
+  bottom: calc(66px + env(safe-area-inset-bottom, 0px));
+  font-size: 14px;
+  background: #000b;
+  border: 2px solid #ffe9a0;
+  padding: 10px 16px;
+  pointer-events: auto;
+}
+body.touch #pr:empty {
+  display: none;
+}
+body.touch #tst {
+  font-size: 15px;
+  top: 14%;
+}
+
+/* Menu on phones / short screens: Campaign only, compact */
+body.touch .cd:not(.on) {
+  display: none;
+}
+@media (max-height: 520px) {
+  #logo {
+    top: 5%;
+  }
+  #menu ul {
+    bottom: 5%;
+    font-size: 17px;
+  }
+  #menu li {
+    margin-bottom: 12px;
+  }
+  #play h2 {
+    margin: 1vh 0 2vh;
+    font-size: 44px;
+  }
+  .cd.on {
+    height: min(160px, 36vh);
+  }
+  #opt {
+    margin: 2vh 0;
+    font-size: 14px;
+  }
+  #cl {
+    font-size: 36px;
+  }
+}

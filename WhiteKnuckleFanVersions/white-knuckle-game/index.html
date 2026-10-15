@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>White Knuckle – The Climb</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Silkscreen:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/hud.css" />
+    <link rel="stylesheet" href="css/menu.css" />
+    <link rel="stylesheet" href="css/overlays.css" />
+    <link rel="stylesheet" href="css/touch.css" />
+    <link rel="stylesheet" href="css/cinematic.css" />
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="fx"></div>
+    <div id="dg"></div>
+    <div id="hud">
+      <div id="ht">0.0 M</div>
+      <div id="tm"></div>
+      <div id="st2"></div>
+      <div id="pr"></div>
+      <div id="pw"></div>
+      <div id="tst"></div>
+      <div id="inv"></div>
+      <canvas id="it" width="8" height="8"></canvas>
+      <div id="ch"></div>
+      <div class="bar" id="b0"><i></i></div>
+      <div class="bar" id="b1"><i></i></div>
+      <div id="tc">
+        <div id="joy"><i id="knob"></i></div>
+        <button class="tb" id="tg0">GRAB L</button>
+        <button class="tb" id="tg1">GRAB R</button>
+        <button class="tb" id="tjp">JUMP</button>
+        <div id="ttop">
+          <button class="tb sm" id="tlt">LIGHT</button>
+          <button class="tb sm" id="thk">HOOK</button>
+          <button class="tb sm" id="tdr">DROP</button>
+        </div>
+      </div>
+    </div>
+    <div class="ov" id="menu">
+      <div id="logo">
+        <span class="w">WHITE KNUCKLE</span><span class="s">THE CLIMB</span>
+      </div>
+      <ul>
+        <li id="mp">PLAY</li>
+        <li class="d">JOURNAL</li>
+        <li class="d">COSMETICS</li>
+        <li class="d">SETTINGS</li>
+      </ul>
+      <small>[white-knuckle-fan-0.1] [html5]</small>
+    </div>
+    <div class="ov" id="play">
+      <h2>PLAY</h2>
+      <div id="cards">
+        <div class="cd on" id="camp"><b>Campaign</b></div>
+      </div>
+      <div id="opt">
+        <h3>Options</h3>
+        <label><input type="checkbox" id="ot" checked /> Onscreen Timer</label
+        ><span class="k">Iron Knuckle</span><span class="r">Hard Mode</span>
+      </div>
+      <div id="cl">CLOSE</div>
+    </div>
+    <div id="cin">
+      <i class="bar t"></i><i class="bar b"></i>
+      <div id="ctitle">
+        <small>THE SILO IS BEHIND YOU</small>
+        <h1>You reached the surface</h1>
+        <p id="cstat"></p>
+      </div>
+      <span id="cskip">CLICK / SPACE TO SKIP</span>
+    </div>
+    <div class="ov" id="end">
+      <h1 id="et"></h1>
+      <p id="es"></p>
+      <p>CLICK TO CLIMB AGAIN</p>
+    </div>
+    <div class="ov" id="pz">
+      <div style="text-align: center">
+        CLICK TO RESUME
+        <p style="font-size: 13px; line-height: 1.9; opacity: 0.75">
+          L/R CLICK: GRAB &nbsp; SPACE: JUMP &nbsp; SHIFT: RUN · SHIFT+SPACE:
+          BOOST JUMP &nbsp; F: HOLD / HOLSTER FLASHLIGHT (LEFT HAND)<br />E:
+          TAKE &nbsp; 1-5 / WHEEL: USE OR EQUIP &nbsp; Q: DISCARD &nbsp; R:
+          RESTART<br />GUN EQUIPPED: RIGHT CLICK FIRES (RIGHT HAND IS BUSY)<br />X:
+          GRAPPLE (W/S REEL, A/D SWING, SPACE RELEASE) &nbsp; SPACE IN AIR:
+          DOUBLE JUMP
+        </p>
+      </div>
+    </div>
+    <div id="rot">ROTATE YOUR PHONE<br />TO LANDSCAPE</div>
+    <canvas id="gn"></canvas>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/core/renderer.js"></script>
+    <script src="js/core/state.js"></script>
+    <script src="js/core/collision.js"></script>
+    <script src="js/ui/hands.js"></script>
+    <script src="js/ui/icons.js"></script>
+    <script src="js/world/textures.js"></script>
+    <script src="js/world/environment.js"></script>
+    <script src="js/world/zones.js"></script>
+    <script src="js/world/holds.js"></script>
+    <script src="js/world/platforms.js"></script>
+    <script src="js/world/districts.js"></script>
+    <script src="js/world/pickups.js"></script>
+    <script src="js/entities/powerups.js"></script>
+    <script src="js/entities/monster.js"></script>
+    <script src="js/audio/engine.js"></script>
+    <script src="js/audio/sounds.js"></script>
+    <script src="js/player/inventory.js"></script>
+    <script src="js/player/items.js"></script>
+    <script src="js/player/weapon.js"></script>
+    <script src="js/player/grabbing.js"></script>
+    <script src="js/player/movement.js"></script>
+    <script src="js/ui/hud.js"></script>
+    <script src="js/game/flow.js"></script>
+    <script src="js/game/cinematic.js"></script>
+    <script src="js/ui/menu.js"></script>
+    <script src="js/input/controls.js"></script>
+    <script src="js/input/touch.js"></script>
+    <script src="js/game/sim.js"></script>
+    <script src="js/game/render.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

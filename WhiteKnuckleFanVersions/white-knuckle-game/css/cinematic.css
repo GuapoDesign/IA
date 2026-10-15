@@ -1,0 +1,87 @@
+/* Victory cinematic: letterbox bars, title card, skip hint, golden end screen. */
+#cin {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  visibility: hidden;
+}
+#cin.on {
+  visibility: visible;
+}
+#cin .bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: #000;
+  transition: height 1.6s ease-out;
+}
+#cin .t {
+  top: 0;
+}
+#cin .b {
+  bottom: 0;
+}
+#cin.on .bar {
+  height: 12vh;
+}
+#ctitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20vh;
+  text-align: center;
+  color: #fff6dc;
+  text-shadow:
+    0 0 24px #ffb04088,
+    4px 4px 0 #3a1a08;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 2s,
+    transform 2s;
+}
+#cin.show #ctitle {
+  opacity: 1;
+  transform: none;
+}
+#ctitle small {
+  font:
+    700 clamp(12px, 1.6vw, 18px) Silkscreen,
+    monospace;
+  letter-spacing: 0.3em;
+  color: #ffd070;
+}
+#ctitle h1 {
+  margin: 0.2em 0;
+  font:
+    700 clamp(40px, 8vw, 104px) / 1 Oswald,
+    Impact,
+    sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+#ctitle p {
+  margin: 0;
+  font:
+    400 clamp(13px, 1.8vw, 20px) Silkscreen,
+    monospace;
+  opacity: 0.9;
+}
+#cskip {
+  position: absolute;
+  right: 4vw;
+  bottom: 3vh;
+  font:
+    12px Silkscreen,
+    monospace;
+  color: #fff9;
+}
+#end.win {
+  background: linear-gradient(#0008, #0000 38%, #000b 100%);
+}
+#end.win h1 {
+  color: #ffd24a;
+  text-shadow: 4px 4px 0 #5a3a08;
+}
